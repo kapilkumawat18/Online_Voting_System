@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='results.css') }}">
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <div class="container">
+        <h2>Results for {{ election_title }}</h2>
+
+        {% if results %}
+            <!-- Determine the Winner(s) -->
+            {% set max_votes = results[0].vote_count %}
+            {% set winners = results | selectattr("vote_count", "equalto", max_votes) | list %}
+            
+            <!-- Winner Announcement -->
+            <div class="winner-message">
+                🎉 Congratulations! The winner{% if winners|length > 1 %}s are{% else %} is{% endif %}
+                {% for winner in winners %}
+                    <strong>{{ winner.name }}</strong> with <strong>{{ winner.vote_count }}</strong> votes{% if not loop.last %}, {% endif %}
+                {% endfor %}.
+            </div>
+
+            <!-- Candidate Results Table -->
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Profile</th>
+                        <th>Candidate Name</th>
+                        <th>Voter ID</th>
+                        <th>Votes Received</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for candidate in results %}
+                    <tr>
+                        <td>
+                            <img src="{{ url_for('static', filename=candidate.profile_pic) }}" alt="Candidate Picture" class="candidate-pic">
+                        </td>
+                        <td>{{ candidate.name }}</td>
+                        <td>{{ candidate.voter_id }}</td>
+                        <td>{{ candidate.vote_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-votes">No votes have been cast in this election.</p>
+        {% endif %}
+
+        <a href="{{ url_for('vote') }}" class="back-btn">Go Back</a>
+    </div>
+
+    <footer>
+        <div class="containers">
+            <p>&copy; 2024 Online Voting System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='results.js') }}"></script>
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+</body>
+</html>

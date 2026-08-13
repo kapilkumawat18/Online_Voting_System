@@ -1,0 +1,202 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding-top: 60px; /* Adjust padding to account for the fixed heading */
+    background: #0d1117;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align items at the top */
+    height: 100vh;
+    scroll-behavior: smooth;
+}
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+#backgroundVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    z-index: -1; 
+    opacity: 0.5; 
+}
+#otpSection {
+    display: none;
+    }
+.emails{
+    display: flex;
+    gap: 5px;
+}
+button#sendOtpButton{
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    width: 50%;
+    border-radius: 5px;
+    background-color: #14b4f1;
+    color: aliceblue;
+    height: 25px;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+button#sendOtpButton:hover{
+    background: #00a8e8;
+    box-shadow: 0 0 10px #00d4ff;
+}
+
+#sendOtpBtn[disabled]{ 
+    background: gray; cursor: not-allowed;
+    }
+.OTP{
+    display: flex;
+    gap: 5px;
+}
+button#verifyOtpButton{
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    width: 40%;
+    border-radius: 5px;
+    background-color: #14b4f1;
+    color: aliceblue;
+    height: 25px;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+button#verifyOtpButton:hover{
+    background: #00a8e8;
+    box-shadow: 0 0 10px #00d4ff;
+}
+h1 {
+    font-size: 70px;
+    position: fixed;
+    top: 20px; /* Adjust the distance from the top */
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    color: #000000;
+    text-shadow: 0 0 10px #00d8ff, 0 0 20px #00fff7;
+    z-index: 10; /* Ensure it's above other content */
+}
+
+
+.container {
+    position: fixed;
+    top: 25%; /* Adjust this value to position the container below the heading */
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, #0d1117, #1c1c3c);
+    border-radius: 10px;
+    box-shadow: 0 0 20px #00d4ff;
+    max-width: 400px;
+    padding: 20px;
+    z-index: 5; /* Ensure it's above the background but below the heading */
+}
+
+
+.form p {
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 90%;
+    padding: 5px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    background: #1c1c3c;
+    color: #fff;
+}
+
+input[type="submit"],
+button {
+    width: 95%;
+    padding: 7px;
+    background: #00d4ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background: #00a8e8;
+    box-shadow: 0 0 10px #00d4ff;
+}
+.message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+.message.success { color: green; }
+.message.error { color: red; }
+.message.info { color: blue; }
+
+.alert {
+    margin-top: -5px;
+    font-size:12px ;
+    color: #ff0400;
+    margin-bottom: 10px;
+}
+a {
+    font-size: 13px;
+    color: #00d4ff;
+    text-decoration: none;
+}
+#showForgotPassword {
+    margin-top: -10px;
+    text-align: center;
+    display: flow;
+    margin-bottom: -10px;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.form {
+    text-align: left;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    input[type="submit"],
+    button {
+        padding: 8px;
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+    <!-- Background Video -->
+    <video autoplay muted loop id="backgroundVideo">
+        <source src="{{ url_for('static', filename='Images/login-video.mp4') }}" type="video/mp4">
+    </video>
+
+    <!-- Header -->
+    <h1>Secure Vote</h1>
+
+    <div class="container">
+        <!-- Login Form -->
+        <div class="form" id="loginForm">
+            <p>Login</p>
+            <form action="/login" method="POST">
+                <input type="hidden" name="next" value="{{ next|default('') }}">
+                <label for="role">Login as:</label>
+                <select id="role" name="role" required>
+                    <option value="voter">Voter</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your Name" required>
+
+                <label for="email">Email:</label>
+                <input type="text" id="username" name="username" placeholder="Enter your Email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+
+                {% with messages = get_flashed_messages(category_filter=['login_success', 'login_error']) %}
+                    {% if messages %}
+                        <div id="flash-messages">
+                            {% for message in messages %}
+                                <div class="alert">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <input type="submit" value="Login">
+                <p>Don't have an account? <a href="#" id="showRegister">Register here</a></p>
+                <p><a href="#" id="showForgotPassword">Forgot Password?</a></p>
+            </form>
+        </div>
+<!-- Forgot Password Form -->
+<div class="form" id="forgotPasswordForm" style="display: none;">
+    <p>Reset Password</p>
+
+    <!-- Message Display for Errors/Success -->
+    <div id="resetMessage" style="color: red; font-size: 12px; margin-bottom: 10px;"></div>
+    
+    <form>
+        <label for="resetEmail">Enter your Email:</label>
+        <input type="email" id="resetEmail" name="resetEmail" placeholder="Enter your email" required>
+
+        <button type="button" id="sendResetOtpButton" onclick="sendResetOTP()">Send OTP</button>
+
+        <!-- OTP Verification Section (Hidden Initially) -->
+        <div id="resetOtpSection" style="display: none; margin-top: 10px;">
+            <label>Enter OTP:</label>
+            <input type="text" id="resetOtp" name="resetOtp" placeholder="Enter OTP">
+            <button type="button" onclick="verifyResetOTP()">Verify OTP</button>
+        </div>
+
+        <!-- New Password Section (Hidden Initially) -->
+        <div id="newPasswordSection" style="display: none; margin-top: 10px;">
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
+
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password">
+
+            <button type="button" onclick="resetPassword()">Reset Password</button>
+        </div>
+    </form>
+</div>
+
+<!-- Registration Form -->
+<div class="form" id="registrationForm" style="display: none;">
+    <p>Create your account</p>
+    <form action="/register" method="POST">
+        <label for="role">Register as:</label>
+        <select id="role" name="role" required>
+            <option value="voter">Voter</option>
+            <option value="admin">Admin</option>
+        </select>
+
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+
+        <label for="email">Email:</label>
+        <div class="emails">
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <button type="button" id="sendOtpButton" onclick="sendOTP()">Send OTP</button>
+        </div>
+
+        <!-- OTP Verification Section (Hidden Initially) -->
+        <div id="otpSection" style="display: none;">
+            <label for="otp">Enter OTP:</label>
+            <div class="OTP">
+                <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+                <button type="button" id="verifyOtpButton" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+        </div>
+        <div id="Message" style="color: red; font-size: 12px; margin-bottom: 10px;"></div>
+        <label for="voterId">Voter ID:</label>
+        <input type="text" id="voterId" name="voterId" placeholder="Enter your voter ID" required>
+
+        <label for="regPassword">Password:</label>
+        <input type="password" id="regPassword" name="password" placeholder="Enter your password" required>
+
+        <div id="messageContainer">
+            {% with messages = get_flashed_messages(category_filter=['login_success', 'login_error']) %}
+                    {% if messages %}
+                        <div id="flash-messages">
+                            {% for message in messages %}
+                                <div class="alert">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+        </div>
+
+        <button type="submit">Register</button>
+        <p>Already have an account? <a href="#" id="showLogin">Login here</a>.</p>
+    </form>
+</div>
+
+
+    <!-- JavaScript for Switching Forms -->
+    <script>
+       // JavaScript for switching between forms
+const loginForm = document.getElementById('loginForm');
+const registrationForm = document.getElementById('registrationForm');
+const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
+const showRegister = document.getElementById('showRegister');
+const showLogin = document.getElementById('showLogin');
+const showForgotPassword = document.getElementById("showForgotPassword");
+
+showRegister.addEventListener('click', function(e) {
+    e.preventDefault();
+    loginForm.style.display = 'none';
+    registrationForm.style.display = 'block';
+});
+
+showLogin.addEventListener('click', function(e) {
+    e.preventDefault();
+    registrationForm.style.display = 'none';
+    loginForm.style.display = 'block';
+});
+
+showForgotPassword.addEventListener("click", function (e) {
+    e.preventDefault();
+    loginForm.style.display = "none";
+    forgotPasswordForm.style.display = "block";
+});
+
+// Show message function 
+function Message(message, color = "red") {
+    let messageDiv = document.getElementById("Message");
+    messageDiv.style.color = color;
+    messageDiv.innerText = message;
+}
+
+let otpCooldown = false;
+let resetOtpCooldown = false;
+
+// Function to send OTP for registration
+function sendOTP() {
+    if (otpCooldown) return;
+
+    let email = document.getElementById("email").value;
+    let otpButton = document.getElementById("sendOtpButton");
+
+    if (!email) {
+        Message("Please enter your email first.");
+        return;
+    }
+
+    // Disable button and show sending text
+    otpButton.disabled = true;
+    otpButton.innerText = "Sending...";
+
+    fetch('/send_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Message(data.message, data.success ? "green" : "red");
+
+        if ( data.message , data.success ? "green" : "red") {
+            document.getElementById("otpSection").style.display = "block";
+            startOTPTimer("sendOtpButton");
+        } else {
+            otpButton.innerText = "Send OTP";
+            otpButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Message("Failed to send OTP. Please try again.");
+        otpButton.innerText = "Send OTP";
+        otpButton.disabled = false;
+    });
+}
+
+
+function verifyOTP() {
+    let otp = document.getElementById("otp").value;
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Message(data.message, data.success ? "green" : "red");
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Function to start OTP cooldown timer
+function startOTPTimer(buttonId) {
+    let button = document.getElementById(buttonId);
+    let timeLeft = 120;
+
+    if (buttonId === "sendOtpButton") otpCooldown = true;
+    if (buttonId === "sendResetOtpButton") resetOtpCooldown = true;
+
+    button.disabled = true;
+    button.textContent = `Resend (${timeLeft}s)`;
+
+    let countdown = setInterval(() => {
+        timeLeft--;
+        button.textContent = `Resend (${timeLeft}s)`;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            button.textContent = "Send OTP";
+            button.disabled = false;
+
+            if (buttonId === "sendOtpButton") otpCooldown = false;
+            if (buttonId === "sendResetOtpButton") resetOtpCooldown = false;
+        }
+    }, 1000);
+}
+
+// Show message function (used for reset password messages)
+function showMessage(message, color = "red") {
+    let messageDiv = document.getElementById("resetMessage");
+    messageDiv.style.color = color;
+    messageDiv.innerText = message;
+}
+// Function to send reset password OTP
+function sendResetOTP() {
+    if (resetOtpCooldown) return;
+
+    let email = document.getElementById("resetEmail").value;
+    let otpButton = document.getElementById("sendResetOtpButton");
+
+    if (!email) {
+        showMessage("Please enter your email first.");
+        return;
+    }
+
+    otpButton.disabled = true;
+    otpButton.innerText = "Sending...";
+
+    fetch('/send_reset_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showMessage(data.message, data.success ? "green" : "red");
+        if (data.success) {
+            document.getElementById("resetOtpSection").style.display = "block";
+            startOTPTimer("sendResetOtpButton");
+        } else {
+            otpButton.innerText = "Send OTP";
+            otpButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        showMessage("Error sending OTP, try again.");
+        otpButton.innerText = "Send OTP";
+        otpButton.disabled = false;
+    });
+}
+
+// Function to verify reset OTP
+function verifyResetOTP() {
+    let otp = document.getElementById("resetOtp").value;
+
+    fetch('/verify_reset_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showMessage(data.message, data.success ? "green" : "red");
+        if (data.success) {
+            document.getElementById("newPasswordSection").style.display = "block";
+        }
+    })
+    .catch(error => showMessage("OTP verification failed."));
+}
+
+// Function to reset password
+function resetPassword() {
+    let newPassword = document.getElementById("newPassword").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (newPassword !== confirmPassword) {
+        showMessage("Passwords do not match!");
+        return;
+    }
+
+    fetch('/reset_password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword })
+    })
+    .then(response => response.json())
+    .then(data => {
+        showMessage(data.message, data.success ? "green" : "red");
+        if (data.success) {
+            setTimeout(() => {
+                window.location.href = "/"; // Redirect to login after success
+            }, 2000);
+        }
+    })
+    .catch(error => showMessage("Password reset failed."));
+}
+        setTimeout(function() {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.display = 'none';
+        });
+        }, 5000);
+
+
+        </script>
+</body>
+</html>

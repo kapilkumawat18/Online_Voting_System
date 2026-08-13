@@ -1,0 +1,268 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+body {
+  background-color: #f5f7fb;
+  color: #333;
+  scroll-behavior: smooth;
+}
+/* Main content styling */
+.container {
+  max-width: 1200px;
+}
+/* Tabs */
+.poll-tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  margin-top: 10%;
+}
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.tab {
+  padding: 10px 20px;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.tab.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Poll Cards */
+.poll-cards {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.poll-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.poll-card {
+  width: 300px;
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.poll-card h2 {
+  margin-top: 0;
+}
+.poll-card p{
+  margin-top: 10px;
+}
+
+.poll-card .status {
+  margin-bottom: 10px;
+  width: fit-content;
+  display: flex;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.poll-card .status.active {
+  align-items: center;
+  margin-top: 20px;
+  background-color: #28a745;
+  color: #fff;
+}
+
+.poll-card .status.upcoming {
+  margin-top: 20px;
+  background-color: #ffc107;
+  color: #000;
+}
+
+.poll-card .status.completed {
+  margin-top: 20px;
+  background-color: #000000;
+  color: #fff;
+}
+
+/* No Polls Message */
+.no-polls {
+  color: #999;
+  font-size: 18px;
+  text-align: center;
+  width: 100%;
+}
+a.status-btn {
+  display: flex;
+  text-decoration: none;
+  padding: 5px 5px;
+  width: fit-content;
+  font-size: 12px;
+  background-color:#e3dbdb;
+  color: rgb(0, 0, 0);
+  border: 1px solid;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s ease-in-out;
+}
+a.status-btn:hover{
+  background: #00a8e8;
+  box-shadow: 0 0 10px #00d4ff;
+}
+
+/* Votes and other information */
+.poll-card .votes {
+  float: left;
+  font-size: 12px;
+  color: #666;
+}
+/* Footer */
+.Right{
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+footer {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  
+  
+}
+a.edit-btn {
+  background-color: #007bff;
+  font-size: 14px;
+  color: aliceblue;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;  
+  border: 1px solid #7e7979;
+  float: right;
+  text-decoration: none;
+}
+a.edit-btn:hover{
+  background-color: #0056b3;
+}
+footer::before {
+  content: '';
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(135deg, #1a73e8, #4285f4);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.delete-btn {
+  float: right;
+  background-color:#ff0404;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+/* Dark Mode Background & Text */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* Dark Mode Header & Footer */
+.dark-mode header, 
+.dark-mode footer {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+
+
+/* Dark Mode Poll Cards */
+.dark-mode .poll-card {
+  background-color: #222;
+  border: 1px solid #333;
+  box-shadow: 0px 4px 6px rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.dark-mode .poll-card h2 {
+  color: #ffffff;
+}
+
+.dark-mode .poll-card p {
+  color: #cccccc;
+}
+
+/* Dark Mode Poll Status */
+.dark-mode .status {
+  background-color: #444;
+  color: #ffffff;
+}
+
+/* Dark Mode Active Poll Button */
+.dark-mode .status-btn {
+  background-color: #121212;
+  color: white;
+}
+
+.dark-mode .status-btn:hover {
+  background-color: #8392a1;
+}
+
+/* Dark Mode Disabled Poll Button */
+.dark-mode .disabled-btn {
+  background-color: #555;
+  color: #999;
+  cursor: not-allowed;
+}
+
+
+.dark-mode .tab {
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+}
+
+.dark-mode .tab:hover,
+.dark-mode .tab.active {
+  background-color: #0056b3;
+  color: #fff;
+}
+
+/* Dark Mode Rights Footer */
+.dark-mode .Rights p {
+  color: #bbbbbb;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  0% {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  100% {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+@media (max-width: 750px) {
+  .poll-tabs{
+    margin-top: 20%;
+  }
+}

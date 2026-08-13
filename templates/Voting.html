@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='voting.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+</head>
+
+<body class="{{ 'dark-mode' if dark_mode else '' }}">
+    {% include 'header.html' %}
+    <div class="container">
+        <div class="poll-tabs">
+            <button class="tab active" onclick="filterPolls('all')">All</button>
+            <button class="tab" onclick="filterPolls('Active')">Active</button>
+            <button class="tab" onclick="filterPolls('Upcoming')">Upcoming</button>
+            <button class="tab" onclick="filterPolls('Completed')">Completed</button>
+        </div>
+        <div class="poll-cards" id="poll-container">
+            {% for poll in elections %}
+            <div class="poll-card" data-status="{{ poll['status'] | lower }}">
+                <h2>{{ poll['title'] }}</h2>
+                <p>{{ poll['description'] }}</p>
+                <span class="status {{ poll['status'] | lower }}">{{ poll['status'] }}</span>
+
+                <a href="{{ poll['url'] }}"
+                    class="status-btn {% if poll['status'] == 'Upcoming' %}disabled-btn{% endif %}" {% if
+                    poll['status']=="Upcoming" %} onclick="return false;" {% endif %}>
+                    {{ poll['click'] }}
+                </a>
+
+                <!-- Show dates dynamically -->
+                {% if poll['status'] == "Upcoming" %}
+                <p class="votes">Starts: {{ poll['startDate'] }}</p>
+                {% elif poll['status'] == "Completed" %}
+                <p class="votes">Ended: {{ poll['endDate'] }}</p>
+                {% else %}
+                <p class="votes">Ends: {{ poll['endDate'] }}</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <p>No elections available at the moment.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+    <footer>
+        <div class="Rights">
+            <p>&copy;2024 Online Voting System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script src="{{ url_for('static', filename='react.js') }}"></script>
+
+</body>
+
+</html>

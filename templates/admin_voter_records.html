@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Records - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_voter_records.css') }}">
+</head>
+<body>
+    {% include 'header.html' %}
+    
+    <div class="container">
+        <h2>Voter Records</h2>
+
+        <!-- Search Bar for Election Name -->
+        <input type="text" id="searchBox" placeholder="Search Election..." onkeyup="searchElections()">
+
+        {% for election in elections %}
+    <div class="election-record" data-title="{{ election.title | lower }}">
+        <h3>{{ election.title }}</h3>
+        {% if election.votes %}
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Profile Picture</th>
+                        <th>Voter Name</th>
+                        <th>Voter ID</th>
+                        <th>Candidate Name</th>
+                        <th>Candidate ID</th>
+                        <th>Voted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vote in election.votes %}
+                    <tr>
+                        <td>
+                            <img src="{{ url_for('static', filename=vote.candidate_pic) }}" alt="Candidate Picture" width="50">
+                        </td>
+                        <td>{{ vote.voter_name }}</td>
+                        <td>{{ vote.voter_id }}</td>
+                        <td>{{ vote.candidate_name }}</td>
+                        <td>{{ vote.candidate_voter_id }}</td>
+                        <td>{{ vote.voted_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-votes">No voters have voted.</p>
+        {% endif %}
+    </div>
+{% endfor %}
+
+    </div>
+
+    <script>
+        function searchElections() {
+            let input = document.getElementById('searchBox').value.toLowerCase();
+            let records = document.querySelectorAll('.election-record');
+
+            records.forEach(record => {
+                let title = record.getAttribute('data-title');
+                if (title.includes(input)) {
+                    record.style.display = "block";
+                } else {
+                    record.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+    <footer>
+        <p>&copy; 2024 Online Voting System. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+</body>
+</html>

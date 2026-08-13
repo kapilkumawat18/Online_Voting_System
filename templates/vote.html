@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote for Candidates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vote.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+</head>
+<body class="{{ 'dark-mode' if dark_mode else '' }}">
+    {% include 'header.html' %}
+    <div class="containers">
+        <h2>Vote for Your Leader</h2>
+
+        {% if has_voted %}
+            <p class="flash-message success">You have already voted in this election.</p>
+        {% else %}
+            <form class="election" action="/submit_vote/{{ election_id }}" method="POST">
+                <div class="candidate">
+                    {% for candidate in candidates %}
+                        <div class="candidate-item">
+                            <div class="vote">
+                            <img src="{{ url_for('static', filename=candidate['profile_pic']) }}" 
+                                 alt="Profile Picture" class="candidate-pic">
+                
+                            <label for="candidate_{{ candidate['id'] }}">
+                                {{ candidate['name'] }} 
+                                <span style="margin-left: 30px;">ID: {{ candidate['voterId'] }}</span>
+                            </label>
+                            </div>
+                            <input type="radio" name="candidate_id" value="{{ candidate['id'] }}" id="candidate_{{ candidate['id'] }}" style="float: right;">
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit">Submit Vote</button>
+            </form>
+        {% endif %}
+        <a href="{{ url_for('vote') }}" class="back-btn">Go Back</a>
+    </div>
+    <footer>
+        <div class="Rights">
+            <p>&copy; 2024 Online Voting System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script src="{{ url_for('static', filename='.js') }}"></script>
+</body>
+</html>

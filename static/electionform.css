@@ -1,0 +1,288 @@
+.containers {
+    padding: 20px;
+    max-width: 500px;
+    margin: 80px auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+}
+
+.add-election h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+}
+
+form input,
+form select,
+form textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.candidate-entry {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.candidate-entry input {
+    flex-grow: 1;
+    margin-bottom: 3px;
+}
+
+.candidate-entry button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-candidate {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.add-candidate:hover {
+    background-color: #0056b3;
+}
+
+.remove-candidate {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.remove-candidate:hover {
+    background-color: #a71d2a;
+}
+
+form .button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form .button:hover {
+    background-color: #218838;
+}
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+#add-messages {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 300px;
+    z-index: 1000;
+    margin-top: 10px;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-block;
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+/* Existing Candidates Section */
+#existing-candidates label {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Candidate Entries Container */
+.candidate-entries {
+    display: flex;
+    justify-content: space-between; /* Pushes name left & checkbox right */
+    align-items: center;
+    background: white;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Candidate Name & Voter ID Styling */
+.candidate-entries span {
+    font-size: 16px;
+    color: #333;
+    flex-grow: 1; /* Ensures text expands properly */
+    text-align: left;
+}
+
+/* Checkbox Styling */
+.candidate-entries input[type="checkbox"] {
+    transform: scale(1.2); /* Slightly bigger checkbox */
+    cursor: pointer;
+}
+
+
+/* Success Message */
+.alert-success {
+    background-color: #d4edda;
+    border-left: 5px solid #28a745;
+    color: #155724;
+}
+
+/* Error Message */
+.alert-danger {
+    background-color: #f8d7da;
+    border-left: 5px solid #dc3545;
+    color: #721c24;
+}
+/* Dark Mode Background & Text */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+/* Dark Mode Header & Footer */
+.dark-mode header, 
+.dark-mode footer {
+  background: #1e1e1e;
+  color: #ffffff;
+}
+/* Dark Mode Container */
+.dark-mode .containers {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(255, 255, 255, 0.1);
+}
+.dark-mode .add-election h2 {
+    color: white;
+}
+/* Dark Mode Candidate Section */
+.dark-mode .candidate-entry {
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+/* Dark Mode Inputs & Textarea */
+.dark-mode input, 
+.dark-mode select, 
+.dark-mode textarea {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Dark Mode Input Placeholder */
+.dark-mode input::placeholder, 
+.dark-mode textarea::placeholder {
+    color: #bbbbbb;
+}
+
+/* Dark Mode Labels */
+.dark-mode label {
+    color: #ffffff;
+}
+
+
+/* Dark Mode Buttons */
+.dark-mode button {
+    background-color: #272fdf;
+    color: #ffffff;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Button Hover Effect */
+.dark-mode button:hover {
+    background-color: #292e90;
+}
+
+/* Dark Mode Flash Messages */
+.dark-mode .alert {
+    background-color: #333;
+    color: #ffffff;
+    border-left: 5px solid #777;
+}
+
+/* Dark Mode Flash Message Close Button */
+.dark-mode .close-btn {
+    color: #bbb;
+}
+
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Auto-hide effect */
+.alert.hide {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+/* Close button */
+.close-btn {
+    float: right;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}

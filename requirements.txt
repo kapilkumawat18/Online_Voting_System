@@ -1,0 +1,7 @@
+Flask
+flask-mysqldb>=2.0.0
+flask-caching
+python-dotenv
+Werkzeug
+gunicorn
+eventlet

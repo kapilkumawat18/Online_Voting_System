@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Update Election</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='electionform.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+    </head>
+<body>
+    {% include 'header.html' %}
+    <div class="containers">
+        <div id="add-messages"></div>
+        <section class="add-election">
+            <h2>Update Election</h2>
+            <form method="POST">
+                <!-- Election Title -->
+                <label for="title">Election Title:</label>
+                <input type="text" id="title" name="title" value="{{ election.title }}" required>
+
+                <!-- Election Description -->
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required>{{ election.description }}</textarea>
+
+                <!-- Election Status -->
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="Active" {% if election.status == 'Active' %}selected{% endif %}>Active</option>
+                    <option value="Upcoming" {% if election.status == 'Upcoming' %}selected{% endif %}>Upcoming</option>
+                </select>
+
+                <!-- Election Start and End Dates -->
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ election.start_date }}" required>
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ election.end_date }}" required>
+
+                <!-- Existing Candidates Section -->
+                <label for="existing_candidates">Existing Candidates:</label>
+                <div id="existing-candidates">
+                    {% for candidate in candidates %}
+                        <div class="candidate-entries">
+                            <span>{{ candidate.name }} ({{ candidate.voterId }})</span>
+                            <input type="checkbox" name="delete_candidates[]" value="{{ candidate.id }}">
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Add Candidates Section -->
+                <label for="candidates">Add Candidates:</label>
+                <div id="candidate-section">
+                    <div class="candidate-entry">
+                        <input type="text" name="candidates[]" placeholder="Enter Name/Voter ID (e.g., John Doe/12345)">
+                        <button type="button" class="add-candidate" onclick="addCandidateField()">Add More</button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="button">Update Election</button>
+            </form>
+        </section>
+    </div>
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+        const candidateSection = document.getElementById("candidate-section");
+
+        // Add new candidate row
+        candidateSection.addEventListener("click", function (event) {
+            if (event.target.classList.contains("add-candidate")) {
+                const newCandidateEntry = document.createElement("div");
+                newCandidateEntry.classList.add("candidate-entry");
+
+                newCandidateEntry.innerHTML = `
+                    <input type="text" name="candidates[]" placeholder="Enter Name/Voter ID (e.g., John Doe/12345)" required>
+                    <button type="button" class="remove-candidate">Remove</button>
+                `;
+
+                candidateSection.appendChild(newCandidateEntry);
+            }
+        });
+
+        // Remove candidate row
+        candidateSection.addEventListener("click", function (event) {
+            if (event.target.classList.contains("remove-candidate")) {
+                event.target.parentElement.remove();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

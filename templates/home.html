@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+</head>
+<body class="{{ 'dark-mode' if dark_mode else '' }}">
+    {% include 'header.html' %}
+    <input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <main>
+        <section id="home" class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Secure, Transparent, and Reliable Voting</h2>
+                    <p>Your voice matters. Participate in elections from anywhere with the assurance of data security and privacy.</p>
+                    <a href="/voting" class="button">Start Voting</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="content-section">
+            <div class="container">
+                <h2>About Our System</h2>
+                <p>Our online voting system is designed to streamline the voting process, ensuring accessibility, security, and integrity in elections. We leverage the latest encryption technologies to protect your vote and maintain confidentiality.</p>
+            </div>
+        </section>
+
+        <section id="work" class="content-section">
+            <div class="container">
+                <h2>How It Works</h2>
+                <p>Register, verify your identity, and cast your vote in just a few clicks. Our system provides step-by-step guidance to ensure a seamless experience for all users.</p>
+            </div>
+        </section>
+
+        <section id="contact" class="content-section">
+            <div class="container">
+                <h2>Contact Us</h2>
+                <p>If you have any questions or need assistance, please reach out to our support team. We’re here to help you make your voice heard.</p>
+                <div class="icon-container">
+                    <a href="https://wa.me/9546592675?text=Hello%20there!" target="_blank" class="icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                    </a>
+                    <a href="mailto:2024btechaimlkapil17131@poornima.edu.in?subject=Subject%20Here&body=Hello%20there" class="icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail">
+                    </a>
+                    <a href="https://www.linkedin.com" target="_blank" class="icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn">
+                    </a>
+                </div>        
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Online Voting System. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
