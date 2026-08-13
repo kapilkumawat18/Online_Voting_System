@@ -15,12 +15,13 @@ A full-stack web application for running secure, role-based online elections —
 </div>
 
 ---
-Live Demo : https://online-voting-system-s626.onrender.com/
-For Demo Use : 
-Role: Voter
-Name : Voter 
-Email : demoproject123@gmail.com
-Password : Demo123 
+Live Demo : https://online-voting-system-s626.onrender.com/ <br>
+For Demo Use : <br>
+Role: Voter <br>
+Name : Voter <br>
+Email : demoproject123@gmail.com <br>
+Password : Demo123 <br>
+
 ## 📖 Overview
 
 Secure Vote is a role-based online voting platform. Voters register, verify
