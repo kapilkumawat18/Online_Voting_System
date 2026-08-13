@@ -19,7 +19,9 @@ load_dotenv("otp.env")
 app = Flask(__name__)
 socketio = SocketIO(app)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'Online_Voting_System')
-
+@app.before_request
+def log_request():
+    print(f"REQUEST: {request.method} {request.path}", flush=True)
 # Cache config (simple in-memory, fast)
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 60})
 
