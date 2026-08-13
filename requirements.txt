@@ -6,3 +6,4 @@ Werkzeug
 gunicorn
 eventlet
 Flask-Mail
+Flask-SocketIO
