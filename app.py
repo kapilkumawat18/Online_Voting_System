@@ -1114,7 +1114,7 @@ def delete_election(election_id):
 @app.route('/votes/<int:election_id>', methods=['GET'])
 def show_candidates(election_id):
     if 'user_id' not in session:
-    return redirect(url_for('login', next=request.path))
+        return redirect(url_for('login', next=request.path))
 
     user_id = session['user_id']
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
