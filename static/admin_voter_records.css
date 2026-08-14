@@ -181,9 +181,13 @@ body.dark-mode {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Was a fixed 700px here, which overrode the 90%-width base rule and
+       caused horizontal overflow/scrolling on every phone screen (700px is
+       wider than the viewport on anything under ~778px wide). */
     .container{
-        width: 700px;
+        width: 92%;
     }
+
     th, td {
         font-size: 14px;
         padding: 8px;
@@ -192,5 +196,15 @@ body.dark-mode {
     img {
         width: 40px;
         height: 40px;
+    }
+
+    /* Voter records tables tend to have many columns — let the table
+       scroll horizontally within its own box on narrow screens instead of
+       squeezing (and clipping) every column. */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
     }
 }

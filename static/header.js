@@ -1,8 +1,10 @@
-let profileData = {
-  name: "{{ session['name'] | safe }}",
-  email: "{{ session['username'] | safe }}",
-  profilePic: document.getElementById('profile-pic').src
-};
+// CSRF token helper — the app now requires an X-CSRFToken header on every
+// state-changing (POST) fetch(). The token is rendered server-side into a
+// <meta name="csrf-token"> tag by header.html / login.html.
+function getCSRFToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.content : '';
+}
 
 let currentSection = '';  // To track the currently opened section
 
@@ -85,6 +87,7 @@ function saveChanges(event) {
 
   fetch('/update_profile', {
       method: 'POST',
+      headers: { 'X-CSRFToken': getCSRFToken() },
       body: formData,
   })
   .then(response => response.json())
@@ -135,6 +138,7 @@ function changePassword(event) {
   // Send password change request
   fetch('/change_password', {
     method: 'POST',
+    headers: { 'X-CSRFToken': getCSRFToken() },
     body: new URLSearchParams({
       'current-password': currentPassword,
       'new-password': newPassword
@@ -206,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to remove notification
     function removeNotification(id) {
-        fetch(`/remove_notification/${id}`, { method: "POST" })
+        fetch(`/remove_notification/${id}`, { method: "POST", headers: { 'X-CSRFToken': getCSRFToken() } })
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
@@ -284,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           fetch("/toggle_dark_mode", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
               body: JSON.stringify({ dark_mode: darkModeEnabled })
           })
           .then(response => response.json())
@@ -324,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // inside initSettings(), which only attaches it once the button actually exists.)
 
 function logout() {
-  fetch('/logout', { method: 'POST' })
+  fetch('/logout', { method: 'POST', headers: { 'X-CSRFToken': getCSRFToken() } })
   .then(response => response.json())
   .then(data => {
       if (data.status === 'success') {

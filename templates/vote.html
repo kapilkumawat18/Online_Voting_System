@@ -16,6 +16,7 @@
             <p class="flash-message success">You have already voted in this election.</p>
         {% else %}
             <form class="election" action="/submit_vote/{{ election_id }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="candidate">
                     {% for candidate in candidates %}
                         <div class="candidate-item">

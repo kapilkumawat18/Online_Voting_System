@@ -47,11 +47,22 @@ cert never get committed.
    MYSQL_DB=<Aiven database name>
    MYSQL_SSL_CA=/etc/secrets/ca.pem
 
-   GMAIL_USER=your_email@gmail.com
-   GMAIL_PASS=your_gmail_app_password
-   FLASK_SECRET_KEY=<any long random string>
+   BREVO_API_KEY=<API key from Brevo → Settings → SMTP & API → API Keys>
+   BREVO_SENDER_EMAIL=<a verified sender address in your Brevo account>
+   BREVO_SENDER_NAME=Secure Vote
+   FLASK_SECRET_KEY=<any long random string — generate with: python -c "import secrets; print(secrets.token_hex(32))">
    FLASK_DEBUG=false
    ```
+
+   **Why not Gmail SMTP anymore:** Render's free/starter web services block
+   outbound traffic on the SMTP ports (25/465/587), which is exactly why OTP
+   emails were failing with `[Errno 101] Network is unreachable`. Brevo's
+   API is a plain HTTPS POST (port 443, always open), so it works from
+   Render without any network/plan changes. Sign up free at
+   https://www.brevo.com — the free plan covers this project's OTP volume.
+   In Brevo, verify a sender email/domain first (Senders & IP → Senders),
+   then generate an API key (SMTP & API → API Keys → Generate a new API key)
+   and use that as `BREVO_API_KEY`.
 
 5. Deploy. `init_db()` in `app.py` runs `CREATE TABLE IF NOT EXISTS` for
    every table against your fresh Aiven database on first boot — no manual

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Online Voting System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
@@ -20,6 +21,7 @@
         <div class="form" id="loginForm">
             <p>Login</p>
             <form action="/login" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="next" value="{{ next|default('') }}">
                 <label for="role">Login as:</label>
                 <select id="role" name="role" required>
@@ -88,6 +90,7 @@
 <div class="form" id="registrationForm" style="display: none;">
     <p>Create your account</p>
     <form action="/register" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="role">Register as:</label>
         <select id="role" name="role" required>
             <option value="voter">Voter</option>
@@ -130,7 +133,7 @@
                 {% endwith %}
         </div>
 
-        <button type="submit">Register</button>
+        <button type="submit" id="registerSubmitButton" disabled title="Verify your email with the OTP first">Register</button>
         <p>Already have an account? <a href="#" id="showLogin">Login here</a>.</p>
     </form>
 </div>
@@ -142,6 +145,11 @@
 const loginForm = document.getElementById('loginForm');
 const registrationForm = document.getElementById('registrationForm');
 const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
+function getCSRFToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+}
 
 const showRegister = document.getElementById('showRegister');
 const showLogin = document.getElementById('showLogin');
@@ -193,7 +201,7 @@ function sendOTP() {
 
     fetch('/send_otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
         body: JSON.stringify({ email: email })
     })
     .then(response => response.json())
@@ -221,15 +229,28 @@ function verifyOTP() {
     let otp = document.getElementById("otp").value;
     fetch('/verify_otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
         body: JSON.stringify({ otp: otp })
     })
     .then(response => response.json())
     .then(data => {
         Message(data.message, data.success ? "green" : "red");
+        // The backend now requires the email to be OTP-verified before it will
+        // accept /register at all, so the submit button stays disabled until
+        // verification actually succeeds (previously it was always clickable,
+        // making the OTP step purely cosmetic).
+        const registerSubmit = document.getElementById("registerSubmitButton");
+        if (registerSubmit) registerSubmit.disabled = !data.success;
     })
     .catch(error => console.error('Error:', error));
 }
+
+// Verification is tied to the exact email that was verified — if the user
+// edits the email after verifying, require them to verify again.
+document.getElementById("email").addEventListener("input", function () {
+    const registerSubmit = document.getElementById("registerSubmitButton");
+    if (registerSubmit) registerSubmit.disabled = true;
+});
 
 // Function to start OTP cooldown timer
 function startOTPTimer(buttonId) {
@@ -280,7 +301,7 @@ function sendResetOTP() {
 
     fetch('/send_reset_otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
         body: JSON.stringify({ email: email })
     })
     .then(response => response.json())
@@ -307,7 +328,7 @@ function verifyResetOTP() {
 
     fetch('/verify_reset_otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
         body: JSON.stringify({ otp: otp })
     })
     .then(response => response.json())
@@ -332,7 +353,7 @@ function resetPassword() {
 
     fetch('/reset_password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
         body: JSON.stringify({ password: newPassword })
     })
     .then(response => response.json())

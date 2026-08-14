@@ -171,3 +171,41 @@ body.dark-mode {
 .dark-mode tr:hover{
   background-color: #333;
 }
+
+/* ----------------- Responsive ----------------- */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+    padding-bottom: 70px; /* clear the fixed footer */
+  }
+
+  h2 {
+    margin-top: 40px;
+    font-size: 20px;
+  }
+
+  table,
+  .results-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  th, td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .candidate-pic {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 420px) {
+  footer {
+    font-size: 13px;
+    padding: 0.6rem 0;
+  }
+}

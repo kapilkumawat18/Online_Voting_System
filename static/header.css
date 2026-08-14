@@ -454,7 +454,12 @@ small#email-message {
     top: 50px;
     right: 0;
     background-color:#092399;
+    /* 30% of the viewport is fine on a tablet but far too narrow on an
+       actual phone (30% of 375px is ~112px — nav labels wrapped/clipped).
+       Cap it with min/max so it scales sensibly down to small phones. */
     width: 30%;
+    min-width: 200px;
+    max-width: 80vw;
     border-radius: 0px 0px 5px 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;

@@ -126,3 +126,43 @@ body.dark-mode {
     font-size: 18px;
     text-align: center;
 }
+
+/* ----------------- Responsive ----------------- */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        /* leave room so the fixed footer never overlaps the table */
+        padding-bottom: 70px;
+    }
+
+    h2 {
+        margin-top: 40px;
+        font-size: 20px;
+    }
+
+    /* Let the table scroll horizontally within its own box instead of
+       overflowing (and breaking) the whole page layout. */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .candidate-pic {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 420px) {
+    footer {
+        font-size: 13px;
+        padding: 0.6rem 0;
+    }
+}

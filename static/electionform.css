@@ -286,3 +286,50 @@ body.dark-mode {
     cursor: pointer;
     margin-left: 10px;
 }
+
+/* ----------------- Responsive ----------------- */
+@media (max-width: 768px) {
+    .containers {
+        max-width: 92%;
+        margin: 60px auto;
+        padding: 16px;
+    }
+
+    #add-messages {
+        left: 16px;
+        right: 16px;
+        width: auto;
+        top: 60px;
+    }
+
+    .candidate-entry {
+        flex-wrap: wrap;
+    }
+
+    .candidate-entries {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 420px) {
+    .containers {
+        margin: 50px auto;
+        padding: 12px;
+    }
+
+    .add-election h2 {
+        font-size: 20px;
+    }
+
+    form input,
+    form select,
+    form textarea,
+    form .button {
+        font-size: 16px; /* avoids iOS auto-zoom on focus */
+    }
+
+    .candidate-entry button {
+        padding: 10px 12px; /* larger touch target */
+    }
+}

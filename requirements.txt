@@ -5,5 +5,8 @@ python-dotenv
 Werkzeug
 gunicorn
 eventlet
-Flask-Mail
 Flask-SocketIO
+Flask-WTF
+Flask-Limiter
+requests
+Pillow

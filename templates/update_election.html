@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Election</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='electionform.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
@@ -12,6 +14,7 @@
         <section class="add-election">
             <h2>Update Election</h2>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <!-- Election Title -->
                 <label for="title">Election Title:</label>
                 <input type="text" id="title" name="title" value="{{ election.title }}" required>
