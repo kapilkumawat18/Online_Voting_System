@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, jsonify, url_for, s
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime , date
 import secrets
 import hashlib
@@ -24,50 +25,35 @@ load_dotenv("otp.env")
 
 # Initialize the Flask application
 app = Flask(__name__)
+# Render terminates TLS at its proxy; trust the standard forwarded headers so
+# request.is_secure and HTTPS-aware security behavior work correctly.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 socketio = SocketIO(app)
-<<<<<<< HEAD
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'Online_Voting_System')
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
+if not app.secret_key:
+    app.secret_key = secrets.token_hex(32)
+    print("WARNING: FLASK_SECRET_KEY is not set; sessions will reset on restart.")
+
 @app.before_request
 def log_request():
     print(f"REQUEST: {request.method} {request.path}", flush=True)
-=======
 
-# --- Secret key -----------------------------------------------------------
-# NEVER fall back to a hardcoded, guessable secret in production — a fixed
-# fallback that's visible in a public repo lets anyone forge session cookies
-# (which is exactly what OTP verification relies on being tamper-proof).
-# If FLASK_SECRET_KEY isn't set, generate a random one at process start
-# instead. Sessions won't survive a restart in that case, but that's far
-# safer than a predictable key — and the log line makes the missing
-# env var impossible to miss.
-_secret_key = os.getenv('FLASK_SECRET_KEY')
-if not _secret_key:
-    _secret_key = secrets.token_hex(32)
-    print("WARNING: FLASK_SECRET_KEY is not set. Using a random key for this "
-          "process only — all sessions will be invalidated on restart. "
-          "Set FLASK_SECRET_KEY in your environment for production.")
-app.secret_key = _secret_key
-
-# Reject any request body over 5MB outright (profile picture uploads etc.)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
-
-# --- Session cookie hardening -----------------------------------------------
-# HttpOnly stops JS (and therefore XSS) from reading the session cookie.
-# SameSite=Lax stops it being sent on cross-site POSTs (the main CSRF vector)
-# while still allowing normal top-level navigation (e.g. clicking a link).
-# Secure is only forced on when we detect we're actually behind HTTPS
-# (Render terminates TLS in front of the app) so local HTTP dev still works.
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = os.getenv('RENDER', '') != '' or os.getenv('FORCE_HTTPS_COOKIES', 'false').lower() == 'true'
+app.config['SESSION_COOKIE_SECURE'] = (
+    os.getenv('RENDER', '').lower() in ('1', 'true', 'yes')
+    or os.getenv('FORCE_HTTPS_COOKIES', 'false').lower() == 'true'
+)
 
-# --- CSRF protection --------------------------------------------------------
 csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["300 per minute"],
+    storage_uri="memory://"
+)
 
-# --- Rate limiting -----------------------------------------------------------
-limiter = Limiter(get_remote_address, app=app, default_limits=["300 per minute"], storage_uri="memory://")
-
->>>>>>> c8b0719 (Complete security, authentication, OTP and responsive improvements)
 # Cache config (simple in-memory, fast)
 cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 60})
 
@@ -381,8 +367,8 @@ def home():
 
 
 @app.route('/uploads/profiles/<path:filename>')
+@login_required
 def uploaded_file(filename):
-    # send_from_directory already safe from path traversal
     return send_from_directory('static/uploads/profiles', filename)
 # Notification Table
 def add_notification(user_id, message):
@@ -579,7 +565,8 @@ def login():
             return redirect(url_for('admin' if session.get('role') == 'admin' else 'home'))
         return render_template('login.html', next=request.args.get('next', ''))
 
-    role = request.form.get('role')
+    # Public registration may only create voter accounts.
+    role = 'voter'
     name = request.form.get('name')
     username = request.form.get('username')
     password = request.form.get('password')
@@ -695,7 +682,6 @@ def register():
             cur.close()
 
 
-\
 # ----------------- Email (transactional API, not SMTP) -----------------
 # Render's default outbound networking blocks arbitrary TCP egress on the
 # ports SMTP needs (25/465/587) on most plans — that's the direct cause of
@@ -800,6 +786,9 @@ def is_otp_valid(purpose, email, entered_otp):
     if not otp_hash or not otp_time or not stored_email:
         return False, "No OTP found. Please request a new one."
 
+    if not email or email.strip().lower() != str(stored_email).strip().lower():
+        return False, "OTP request does not match this email."
+
     if time.time() - otp_time > OTP_TTL_SECONDS:
         _clear_otp_session(purpose)
         return False, "OTP expired. Request a new one."
@@ -809,15 +798,16 @@ def is_otp_valid(purpose, email, entered_otp):
         _clear_otp_session(purpose)
         return False, "Too many incorrect attempts. Please request a new OTP."
 
-    try:
-        entered_int = int(str(entered_otp).strip())
-    except (TypeError, ValueError):
+    entered_text = str(entered_otp or "").strip()
+    if not re.fullmatch(r"\d{6}", entered_text):
         session[f"{purpose}_attempts"] = attempts + 1
-        return False, "Invalid OTP."
+        remaining = OTP_MAX_ATTEMPTS - (attempts + 1)
+        if remaining <= 0:
+            _clear_otp_session(purpose)
+            return False, "Too many incorrect attempts. Please request a new OTP."
+        return False, f"Invalid OTP. {remaining} attempt(s) remaining."
 
-    expected_hash = _hash_otp(entered_int, stored_email, purpose)
-    # Constant-time comparison so response timing can't be used to narrow
-    # down the correct digits.
+    expected_hash = _hash_otp(entered_text, stored_email, purpose)
     if secrets.compare_digest(expected_hash, otp_hash):
         return True, ""
 
@@ -1145,12 +1135,14 @@ def change_password():
         return redirect(url_for("login"))
 
     try:
-        current_password = request.form["current-password"]
-        new_password = request.form["new-password"]
+        current_password = request.form.get("current-password", "")
+        new_password = request.form.get("new-password", "")
         user_id = session.get("user_id")
 
         if not user_id:
             return jsonify({"message": "User session expired. Please log in again."}), 401
+        if len(new_password) < 8:
+            return jsonify({"message": "New password must be at least 8 characters."}), 400
 
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT password FROM users WHERE id = %s", (user_id,))
@@ -1188,7 +1180,12 @@ def add_election():
             flash("All fields are required!", "add_error")
             return redirect(url_for('electionform'))
 
-        # ✅ Validate date format and order
+        if status not in {"upcoming", "active", "completed", "Upcoming", "Active", "Completed"}:
+            flash("Invalid election status.", "add_error")
+            return redirect(url_for('electionform'))
+        status = status.lower()
+
+        # Validate date format and order
         try:
             start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
             end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
@@ -1368,6 +1365,10 @@ def update_election(election_id):
             if end_date_obj <= start_date_obj:
                 flash("End date must be after start date.", "error")
                 return redirect(url_for('update_election', election_id=election_id))
+            if status not in {"upcoming", "active", "completed", "Upcoming", "Active", "Completed"}:
+                flash("Invalid election status.", "error")
+                return redirect(url_for('update_election', election_id=election_id))
+            status = status.lower()
 
             # Update election
             cursor.execute("""
@@ -1413,6 +1414,7 @@ def update_election(election_id):
 @app.route('/delete_election/<int:election_id>', methods=['POST'])
 @admin_required
 def delete_election(election_id):
+    cursor = None
     try:
         cursor = mysql.connection.cursor()
         today = datetime.today().date()
@@ -1452,7 +1454,8 @@ def delete_election(election_id):
         flash("Something went wrong while deleting the election. Please try again.", "danger")
 
     finally:
-        cursor.close()
+        if cursor:
+            cursor.close()
 
     return redirect(url_for('admin'))
 
@@ -1467,14 +1470,22 @@ def show_candidates(election_id):
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-        # Check the election actually exists before showing a candidate list
-        # for it — this was the one route in the audit request that never
-        # validated election_id at all, so /votes/999999 rendered an empty
-        # (but "valid-looking") ballot instead of a clear error.
-        cursor.execute("SELECT id FROM elections WHERE id = %s", (election_id,))
-        if not cursor.fetchone():
+        cursor.execute(
+            "SELECT id, title, start_date, end_date FROM elections WHERE id = %s",
+            (election_id,)
+        )
+        election = cursor.fetchone()
+        if not election:
             flash("Election not found.", "danger")
             return redirect(url_for('vote'))
+
+        today = date.today()
+        if today < election['start_date']:
+            flash("This election has not started yet.", "warning")
+            return redirect(url_for('vote'))
+        if today >= election['end_date']:
+            flash("This election has ended. Results are available instead.", "warning")
+            return redirect(url_for('results', election_id=election_id))
 
         # Check if the user has already voted
         cursor.execute("SELECT 1 FROM votes WHERE user_id = %s AND election_id = %s LIMIT 1", (user_id, election_id))
@@ -1518,16 +1529,26 @@ def submit_vote(election_id):
     cursor = None
     try:
         cursor = mysql.connection.cursor()
-        cursor.execute('SELECT title, end_date FROM elections WHERE id = %s', (election_id,))
+        cursor.execute(
+            'SELECT title, start_date, end_date FROM elections WHERE id = %s',
+            (election_id,)
+        )
         election = cursor.fetchone()
 
         if not election:
             flash("Election not found.", "danger")
             return redirect(url_for('vote'))
 
-        title, end_date = election
+        title, start_date, end_date = election
+        today = date.today()
+        if today < start_date:
+            flash("This election has not started yet.", "danger")
+            return redirect(url_for('vote'))
+        if today >= end_date:
+            flash("This election has ended. You can no longer vote.", "danger")
+            return redirect(url_for('vote'))
 
-        # Previously nothing verified that candidate_id actually belongs to
+        # Verify the candidate belongs to this election. to
         # this election — only the DB's foreign key (candidate_id exists
         # *somewhere*) was enforced. A crafted request could submit a
         # candidate_id from a *different* election and have it recorded as a
@@ -1583,21 +1604,26 @@ def submit_vote(election_id):
             cursor.close()
 
 @app.route('/results/<int:election_id>')
+@login_required
 def results(election_id):
     try:
         user_role = session.get('role')
 
-        # Use a single cursor with context manager
         with mysql.connection.cursor(MySQLdb.cursors.DictCursor) as cur:
-            # Fetch election details
-            cur.execute("SELECT title, status FROM elections WHERE id = %s", (election_id,))
+            cur.execute(
+                "SELECT title, status, start_date, end_date FROM elections WHERE id = %s",
+                (election_id,)
+            )
             election = cur.fetchone()
 
             if not election:
                 flash("Election not found.", "danger")
-                return redirect(url_for('home'))
+                return redirect(url_for('vote'))
 
             election_title = election['title']
+            if user_role != 'admin' and date.today() < election['end_date']:
+                flash("Results will be available after the election ends.", "warning")
+                return redirect(url_for('vote'))
 
             # Fetch candidates with aggregated vote count and user_id directly
             cur.execute("""
@@ -1719,6 +1745,16 @@ def get_flash_messages():
 def logout():
     session.clear()
     return jsonify({"status": "success"})
+
+
+@app.errorhandler(413)
+def request_entity_too_large(_error):
+    return jsonify({"message": "Uploaded data is too large.", "success": False}), 413
+
+
+@app.errorhandler(429)
+def rate_limit_exceeded(_error):
+    return jsonify({"message": "Too many requests. Please try again later.", "success": False}), 429
 
 
 if __name__ == "__main__":
