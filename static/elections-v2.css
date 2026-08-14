@@ -1,0 +1,79 @@
+
+/* SecureVote V2 — Sprint 3: Elections / Ballot / Results */
+:root{
+  --sv-primary:#5b5ff7;--sv-primary-2:#7c5cff;--sv-cyan:#22d3ee;
+  --sv-bg:#f6f7fb;--sv-card:#fff;--sv-text:#101828;--sv-muted:#667085;
+  --sv-line:#e4e7ec;--sv-success:#12b76a;--sv-shadow:0 18px 55px rgba(16,24,40,.08)
+}
+body{background:radial-gradient(circle at 85% 8%,rgba(124,92,255,.08),transparent 25%),var(--sv-bg)!important}
+.sv-election-page,.sv-vote-page{position:relative}
+.sv-election-page:before,.sv-vote-page:before{
+ content:"";position:fixed;width:420px;height:420px;border-radius:50%;
+ background:rgba(91,95,247,.06);filter:blur(55px);right:-220px;top:180px;pointer-events:none;z-index:-1
+}
+.sv-page-heading h1,.sv-vote-heading h1{letter-spacing:-2.5px}
+.sv-election-card{
+ background:linear-gradient(180deg,#fff,#fbfcff)!important;
+ border-color:#e7e9f0!important;box-shadow:0 10px 35px rgba(16,24,40,.045)!important;
+}
+.sv-election-card:after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:linear-gradient(135deg,rgba(124,92,255,.08),transparent 35%);opacity:0;transition:.25s
+}
+.sv-election-card:hover:after{opacity:1}
+.sv-election-action{position:relative;z-index:2;background:linear-gradient(135deg,var(--sv-primary),var(--sv-primary-2))!important}
+.sv-election-stat{box-shadow:0 5px 18px rgba(16,24,40,.035)}
+.sv-candidate{
+ background:linear-gradient(100deg,#fff,#fbfcff)!important;
+ border-color:#e7e9f0!important;box-shadow:0 7px 24px rgba(16,24,40,.035)!important;
+}
+.sv-candidate:hover{border-color:#b8b9ff!important;box-shadow:0 15px 35px rgba(91,95,247,.10)!important}
+.sv-candidate:has(input:checked){
+ background:linear-gradient(100deg,#f5f5ff,#fff)!important;
+ border-color:var(--sv-primary)!important;
+ box-shadow:0 0 0 4px rgba(91,95,247,.08),0 15px 35px rgba(91,95,247,.10)!important
+}
+.sv-submit{background:linear-gradient(135deg,var(--sv-primary),var(--sv-primary-2))!important}
+.sv-vote-page{max-width:940px}
+.sv-vote-heading{padding:8px 0 8px}
+.sv-voted{box-shadow:0 12px 30px rgba(18,183,106,.07)}
+.sv-results-shell{width:min(1050px,calc(100% - 32px));margin:auto;padding:55px 0 100px}
+.sv-results-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.sv-results-head .eyebrow{color:var(--sv-primary);font-size:10px;font-weight:850;letter-spacing:1.4px}
+.sv-results-head h1{font-family:"Space Grotesk",sans-serif;font-size:42px;letter-spacing:-2px;margin:8px 0}
+.sv-results-head p{margin:0;color:var(--sv-muted);font-size:13px}
+.sv-winner{
+ position:relative;overflow:hidden;padding:24px;border-radius:22px;margin-bottom:18px;
+ border:1px solid #d8d6ff;background:linear-gradient(135deg,#f6f4ff,#f5fbff);
+ box-shadow:0 15px 45px rgba(91,95,247,.09)
+}
+.sv-winner:before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(124,92,255,.13);right:-60px;top:-90px}
+.sv-winner-label{color:#6b5bd5;font-size:10px;font-weight:850;letter-spacing:1px;text-transform:uppercase}
+.sv-winner h2{margin:8px 0 5px;font-family:"Space Grotesk",sans-serif;font-size:24px}
+.sv-winner p{margin:0;color:#667085;font-size:12px}
+.sv-results-card{overflow:hidden;border:1px solid #e7e9f0;border-radius:22px;background:#fff;box-shadow:var(--sv-shadow)}
+.sv-results-table{width:100%;border-collapse:collapse}
+.sv-results-table th{padding:14px 18px;text-align:left;background:#fafaff;color:#667085;font-size:10px;text-transform:uppercase;letter-spacing:.7px}
+.sv-results-table td{padding:15px 18px;border-top:1px solid #f0f1f4;font-size:13px}
+.sv-results-table tr:hover td{background:#fafbff}
+.sv-result-person{display:flex;align-items:center;gap:12px}
+.sv-result-person strong{font-family:"Space Grotesk",sans-serif}
+.sv-result-person small{display:block;color:#98a2b3;margin-top:3px}
+.sv-result-avatar{width:46px;height:46px;border-radius:14px;object-fit:cover}
+.sv-vote-count{font-family:"Space Grotesk",sans-serif;font-weight:800}
+.sv-result-rank{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#f1f2f6;color:#667085;font-weight:800;font-size:11px}
+.sv-results-back{display:inline-flex;margin-top:18px;padding:11px 15px;border:1px solid #e4e7ec;border-radius:11px;text-decoration:none;font-size:12px;font-weight:750;background:#fff}
+@media(max-width:650px){
+ .sv-results-shell{padding:35px 0 90px;width:calc(100% - 28px)}
+ .sv-results-head{display:block}.sv-results-head h1{font-size:34px}
+ .sv-results-card{overflow-x:auto}.sv-results-table{min-width:650px}
+ .sv-winner{padding:20px}
+}
+body.dark-mode .sv-results-shell,body.dark-mode .sv-results-head{color:#fff}
+.dark-mode .sv-results-card{background:#11182b;border-color:#202a43}
+.dark-mode .sv-results-table th{background:#151d31;color:#98a5bd}
+.dark-mode .sv-results-table td{border-color:#202a43}
+.dark-mode .sv-results-table tr:hover td{background:#151d31}
+.dark-mode .sv-results-back{background:#11182b;border-color:#202a43;color:#fff}
+.dark-mode .sv-winner{background:linear-gradient(135deg,#181633,#11202a);border-color:#363160}
+.dark-mode .sv-winner p{color:#98a5bd}

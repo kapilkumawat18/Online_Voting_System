@@ -1,107 +1,142 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<header>
-    <div class="navbar">
-        <div class="title">
-            <img src="{{ url_for('static', filename='Images/PU 0.png') }}" alt="img">
-            <h1>Secure Vote</h1>
-        </div>
-        <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
-        <div class="user-icons">
-            <span class="user-icon" onclick="toggleSidebar()">👤</span>
-        </div>
-        <div class="navs">
-            <nav>
-                <ul>
-                    {% if session.get('role') == 'admin' %}
-                    <li><a href="{{ url_for('admin') }}#home" id="#home">Home</a></li>
-                    <li><a href="/electionform">Add</a></li>
-                    <li><a href="/voting">Vote</a></li>
-                    <li><a href="{{ url_for('admin_voter_records') }}">Records</a></li>
-                    {% elif session.get('logged_in') %}
-                    <li><a href="{{ url_for('home') }}#home" id="#home">Home</a></li>
-                    <li><a href="{{ url_for('home') }}#about" id="#about">Help</a></li>
-                    <li><a href="/voting">Vote</a></li>
-                    <li><a href="{{ url_for('home') }}#contact" id="#contact">Contact</a></li>
-                    {% else %}
-                    <li><a href="{{ url_for('index') }}#home" id="#home">Home</a></li>
-                    <li><a href="{{ url_for('index') }}#about" id="#about">Help</a></li>
-                    <li><a href="/voting">Vote</a></li>
-                    <li><a href="{{ url_for('index') }}#contact" id="#contact">Contact</a></li>
-                    <li><a href="{{ url_for('login') }}">Login</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-    <!-- Sidebar Section -->
-    <div id="sidebar" class="sidebar">
-        {% if session.get('logged_in') %}
-        <div class="profile-info">
 
-            <img id="profile-pic"
-                src="{{ url_for('static', filename=session.get('profile_pic', 'uploads/profiles/PU.jpg')) }}"
-                alt="Profile Picture" class="profile-pic">
+<header class="sv-header">
+    <div class="sv-header-inner">
+        <a class="sv-brand" href="{{ url_for('admin') if session.get('role') == 'admin' else url_for('home') if session.get('logged_in') else url_for('index') }}">
+            <span class="sv-brand-mark">
+                <img src="{{ url_for('static', filename='Images/PU 0.png') }}" alt="SecureVote logo">
+            </span>
+            <span class="sv-brand-copy">
+                <strong>Secure<span>Vote</span></strong>
+                <small>Trusted digital elections</small>
+            </span>
+        </a>
 
-            <h2 id="name-display">{{ session.get('name') }}</h2>
-            <p id="email-display">Email: {{ session.get('username') }}</p>
-            <p>Role: {{ session.get('role') }}</p>
-            <button id="edit-profile-btn" onclick="toggleEditProfile()">Edit Profile</button>
-            <form id="profile-form" onsubmit="saveChanges(event)" enctype="multipart/form-data" style="display: none;">
-                <label for="name">Name:</label><br>
-                <input type="text" id="name" name="name" value="{{ session.get('name') }}"><br><br>
+        <nav class="sv-primary-nav" aria-label="Primary navigation">
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin') }}#home">Dashboard</a>
+                <a href="{{ url_for('electionform') }}">Create Election</a>
+                <a href="{{ url_for('vote') }}">Elections</a>
+                <a href="{{ url_for('admin_voter_records') }}">Voters</a>
+            {% elif session.get('logged_in') %}
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('vote') }}">Elections</a>
+                <a href="{{ url_for('my_votes') }}">My Votes</a>
+                <a href="{{ url_for('notifications') }}">Notifications</a>
+            {% else %}
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('index') }}#about">How it works</a>
+                <a href="{{ url_for('index') }}#contact">Contact</a>
+            {% endif %}
+        </nav>
 
-                <label for="email">Email:</label><br>
-                <input type="email" id="email" name="email" value="{{ session.get('username') }}"
-                    onfocus="showEmailRestriction()" readonly><br>
-                <small id="email-message">You can't change your email.</small><br>
-
-                <label for="profile-pic-input">Change Profile Picture:</label><br>
-                <input type="file" name="profile-pic-input" onchange="previewProfilePic(event)"><br><br>
-
-
-                <button type="submit">Save Changes</button>
-            </form>
-            <button id="edit-profile-btn" onclick="logout()">Log Out</button>
+        <div class="sv-header-actions">
+            {% if session.get('logged_in') %}
+                <a class="sv-notification-button" href="{{ url_for('notifications') }}" aria-label="Notifications">
+                    <span>⌁</span>
+                    <span id="notif-count" class="sv-notification-count">0</span>
+                </a>
+                <button class="sv-profile-button" type="button" onclick="toggleSidebar()" aria-label="Open account menu">
+                    <span class="sv-avatar">
+                        <img id="header-profile-pic"
+                             src="{{ url_for('static', filename=session.get('profile_pic', 'uploads/profiles/PU.jpg')) }}"
+                             alt="">
+                    </span>
+                    <span class="sv-profile-name">{{ session.get('name', 'Account') }}</span>
+                    <span class="sv-chevron">⌄</span>
+                </button>
+            {% else %}
+                <a class="sv-login-button" href="{{ url_for('login') }}">Sign in</a>
+                <a class="sv-cta-button" href="{{ url_for('login') }}">Get started <span>→</span></a>
+            {% endif %}
+            <button class="sv-mobile-toggle" type="button" onclick="toggleMenu()" aria-label="Open navigation">
+                <span></span><span></span><span></span>
+            </button>
         </div>
-        <div id="profile-message"></div>
-        <input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">
-        <div class="nav-links">
-            <ul>
-                {% if session.get('role') == 'admin' %}
-                <li><a href="/voting" onclick="showContent('votes')">Votes</a></li>
-                <li><a href="{{ url_for('admin_voter_records') }}">Records</a></li>
-                <li><a href="#" onclick="showContent('settings')">Settings</a></li>
-                <li>
-                    <a href="/notifications" id="notif-btn" class="notif-btn">
-                        Notifications <span id="notif-count" class="notif-count">0</span>
-                    </a>
-                </li>
-                {% else %}
-                <li><a href="/voting" onclick="showContent('votes')">Votes</a></li>
-                <li><a href="#" onclick="showContent('myVotes')">My Votes</a></li>
-                <li><a href="#" onclick="showContent('settings')">Settings</a></li>
-                <li>
-                    <div class="notification-container">
-                        <a href="/notifications" id="notif-btn" class="notif-btn">
-                            Notifications <span id="notif-count" class="notif-count">0</span>
-                        </a>
-                    </div>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-        <div id="content"></div>
-        {% else %}
-        <div class="profile-info">
-            <h2>Welcome</h2>
-            <p>Log in to vote, view your notifications, and track your ballots.</p>
-            <button id="edit-profile-btn" onclick="window.location.href='{{ url_for('login') }}'">Login / Register</button>
-        </div>
-        {% endif %}
     </div>
 </header>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+{% if session.get('logged_in') %}
+<aside id="sidebar" class="sv-account-panel" aria-label="Account menu">
+    <div class="sv-panel-top">
+        <div>
+            <span class="sv-eyebrow">ACCOUNT</span>
+            <h2>Your profile</h2>
+        </div>
+        <button type="button" class="sv-panel-close" onclick="toggleSidebar()" aria-label="Close">×</button>
+    </div>
 
-</html>
+    <div class="sv-profile-card">
+        <img id="profile-pic"
+             src="{{ url_for('static', filename=session.get('profile_pic', 'uploads/profiles/PU.jpg')) }}"
+             alt="Profile picture" class="sv-large-avatar">
+        <div>
+            <strong id="name-display">{{ session.get('name') }}</strong>
+            <span id="email-display">{{ session.get('username') }}</span>
+            <span class="sv-role-pill">{{ session.get('role')|title }}</span>
+        </div>
+    </div>
+
+    <div id="profile-message"></div>
+
+    <button class="sv-panel-action" type="button" onclick="toggleEditProfile()">
+        <span>✎</span> Edit profile
+    </button>
+
+    <form id="profile-form" class="sv-profile-form" onsubmit="saveChanges(event)" enctype="multipart/form-data" style="display:none;">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="{{ session.get('name') }}" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ session.get('username') }}" readonly>
+        <small id="email-message">Email changes are disabled for account security.</small>
+
+        <label for="profile-pic-input">Profile picture</label>
+        <input id="profile-pic-input" type="file" name="profile-pic-input" accept="image/*" onchange="previewProfilePic(event)">
+
+        <button class="sv-primary-action" type="submit">Save changes</button>
+    </form>
+
+    <div class="sv-panel-links">
+        {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('vote') }}">Elections <span>→</span></a>
+            <a href="{{ url_for('admin_voter_records') }}">Voter records <span>→</span></a>
+        {% else %}
+            <a href="{{ url_for('vote') }}">Browse elections <span>→</span></a>
+            <a href="{{ url_for('my_votes') }}">My votes <span>→</span></a>
+            <a href="{{ url_for('notifications') }}">Notifications <span>→</span></a>
+        {% endif %}
+        <a href="#" onclick="showContent('settings'); return false;">Settings <span>→</span></a>
+    </div>
+
+    <button class="sv-logout-button" type="button" onclick="logout()">Sign out</button>
+</aside>
+{% else %}
+<aside id="sidebar" class="sv-account-panel" aria-label="Account menu">
+    <div class="sv-panel-top">
+        <div>
+            <span class="sv-eyebrow">WELCOME</span>
+            <h2>Join SecureVote</h2>
+        </div>
+        <button type="button" class="sv-panel-close" onclick="toggleSidebar()" aria-label="Close">×</button>
+    </div>
+    <p class="sv-panel-description">Create an account to participate in elections, track your votes and receive important updates.</p>
+    <a class="sv-primary-action sv-primary-action-link" href="{{ url_for('login') }}">Sign in / Register →</a>
+</aside>
+{% endif %}
+
+<div id="sv-mobile-nav" class="sv-mobile-nav">
+    {% if session.get('logged_in') %}
+        <a href="{{ url_for('home') }}"><span>⌂</span><small>Home</small></a>
+        <a href="{{ url_for('vote') }}"><span>◉</span><small>Vote</small></a>
+        <a href="{{ url_for('my_votes') }}"><span>✓</span><small>My Votes</small></a>
+        <a href="{{ url_for('notifications') }}"><span>♢</span><small>Alerts</small></a>
+        <button type="button" onclick="toggleSidebar()"><span>○</span><small>Profile</small></button>
+    {% else %}
+        <a href="{{ url_for('index') }}"><span>⌂</span><small>Home</small></a>
+        <a href="{{ url_for('index') }}#about"><span>?</span><small>About</small></a>
+        <a href="{{ url_for('index') }}#contact"><span>✉</span><small>Contact</small></a>
+        <a href="{{ url_for('login') }}"><span>→</span><small>Sign in</small></a>
+    {% endif %}
+</div>
+<input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">

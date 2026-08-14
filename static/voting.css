@@ -1,268 +1,47 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
+* { box-sizing:border-box; }
 body {
-  background-color: #f5f7fb;
-  color: #333;
-  scroll-behavior: smooth;
+    margin:0; background:#f5f7fb; color:#101828;
+    font-family:"DM Sans",system-ui,sans-serif;
 }
-/* Main content styling */
-.container {
-  max-width: 1200px;
+.sv-election-page {
+    width:min(1180px,calc(100% - 40px)); margin:auto; padding:55px 0 100px;
 }
-/* Tabs */
-.poll-tabs {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-bottom: 20px;
-  margin-top: 10%;
-}
-::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-.tab {
-  padding: 10px 20px;
-  background-color: #f1f1f1;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
+.sv-page-heading { display:flex; justify-content:space-between; align-items:end; gap:25px; margin-bottom:30px; }
+.sv-page-heading .eyebrow { color:#3157d5; font-size:10px; font-weight:850; letter-spacing:1.4px; }
+.sv-page-heading h1 { margin:7px 0; font-family:"Space Grotesk",sans-serif; font-size:42px; letter-spacing:-1.8px; }
+.sv-page-heading p { margin:0; color:#667085; max-width:550px; line-height:1.6; font-size:13px; }
+.sv-election-stats { display:flex; gap:8px; }
+.sv-election-stat { padding:10px 13px; border:1px solid #e4e7ec; border-radius:12px; background:#fff; color:#667085; font-size:11px; }
+.sv-election-stat b { color:#101828; margin-right:4px; }
+.sv-tabs { display:flex; gap:5px; padding:5px; width:max-content; max-width:100%; overflow:auto; border:1px solid #e4e7ec; border-radius:13px; background:#fff; }
+.sv-tab { border:0; background:transparent; color:#667085; padding:9px 14px; border-radius:9px; cursor:pointer; font:inherit; font-size:11px; font-weight:750; white-space:nowrap; }
+.sv-tab.active { background:#eef2ff; color:#3157d5; }
+.sv-election-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:18px; }
+.sv-election-card { position:relative; padding:23px; min-height:235px; display:flex; flex-direction:column; border:1px solid #e4e7ec; border-radius:20px; background:#fff; box-shadow:0 8px 30px rgba(16,24,40,.04); transition:.25s ease; }
+.sv-election-card:hover { transform:translateY(-4px); box-shadow:0 20px 45px rgba(16,24,40,.09); }
+.sv-election-card.hidden { display:none; }
+.sv-election-top { display:flex; justify-content:space-between; align-items:center; }
+.sv-election-status { padding:5px 8px; border-radius:999px; font-size:9px; font-weight:850; text-transform:uppercase; letter-spacing:.6px; }
+.sv-election-status.active { background:#e9f9f1; color:#087443; }
+.sv-election-status.upcoming { background:#fff6df; color:#a15c00; }
+.sv-election-status.completed { background:#eef0f4; color:#667085; }
+.sv-election-number { color:#98a2b3; font-size:10px; }
+.sv-election-card h2 { margin:22px 0 8px; font-family:"Space Grotesk",sans-serif; font-size:20px; letter-spacing:-.5px; }
+.sv-election-card p { margin:0; color:#667085; font-size:12px; line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.sv-election-footer { display:flex; align-items:end; justify-content:space-between; gap:10px; margin-top:auto; padding-top:22px; }
+.sv-election-date { color:#98a2b3; font-size:9px; line-height:1.45; }
+.sv-election-date strong { display:block; color:#475467; font-size:10px; }
+.sv-election-action { padding:10px 13px; border-radius:10px; text-decoration:none; color:#fff; background:#3157d5; font-size:10px; font-weight:800; }
+.sv-election-action:hover { background:#2445b9; }
+.sv-election-action.disabled { background:#eaecf0; color:#98a2b3; pointer-events:none; }
+.sv-empty { grid-column:1/-1; padding:60px 20px; border:1px dashed #d0d5dd; border-radius:20px; text-align:center; color:#667085; background:#fff; }
 
-.tab.active {
-  background-color: #007bff;
-  color: #fff;
-}
-
-/* Poll Cards */
-.poll-cards {
-  cursor: pointer;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-.poll-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-.poll-card {
-  width: 300px;
-  background: #fff;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.poll-card h2 {
-  margin-top: 0;
-}
-.poll-card p{
-  margin-top: 10px;
-}
-
-.poll-card .status {
-  margin-bottom: 10px;
-  width: fit-content;
-  display: flex;
-  padding: 5px 10px;
-  border-radius: 3px;
-  font-size: 12px;
-}
-
-.poll-card .status.active {
-  align-items: center;
-  margin-top: 20px;
-  background-color: #28a745;
-  color: #fff;
-}
-
-.poll-card .status.upcoming {
-  margin-top: 20px;
-  background-color: #ffc107;
-  color: #000;
-}
-
-.poll-card .status.completed {
-  margin-top: 20px;
-  background-color: #000000;
-  color: #fff;
-}
-
-/* No Polls Message */
-.no-polls {
-  color: #999;
-  font-size: 18px;
-  text-align: center;
-  width: 100%;
-}
-a.status-btn {
-  display: flex;
-  text-decoration: none;
-  padding: 5px 5px;
-  width: fit-content;
-  font-size: 12px;
-  background-color:#e3dbdb;
-  color: rgb(0, 0, 0);
-  border: 1px solid;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: 0.3s ease-in-out;
-}
-a.status-btn:hover{
-  background: #00a8e8;
-  box-shadow: 0 0 10px #00d4ff;
-}
-
-/* Votes and other information */
-.poll-card .votes {
-  float: left;
-  font-size: 12px;
-  color: #666;
-}
-/* Footer */
-.Right{
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-footer {
-  background: #333;
-  color: #fff;
-  text-align: center;
-  padding: 1rem 0;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  
-  
-}
-a.edit-btn {
-  background-color: #007bff;
-  font-size: 14px;
-  color: aliceblue;
-  border-radius: 5px;
-  padding: 8px 12px;
-  cursor: pointer;  
-  border: 1px solid #7e7979;
-  float: right;
-  text-decoration: none;
-}
-a.edit-btn:hover{
-  background-color: #0056b3;
-}
-footer::before {
-  content: '';
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(135deg, #1a73e8, #4285f4);
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-.delete-btn {
-  float: right;
-  background-color:#ff0404;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
-}
-/* Dark Mode Background & Text */
-body.dark-mode {
-  background-color: #121212;
-  color: #ffffff;
-}
-
-/* Dark Mode Header & Footer */
-.dark-mode header, 
-.dark-mode footer {
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-
-/* Dark Mode Poll Cards */
-.dark-mode .poll-card {
-  background-color: #222;
-  border: 1px solid #333;
-  box-shadow: 0px 4px 6px rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-.dark-mode .poll-card h2 {
-  color: #ffffff;
-}
-
-.dark-mode .poll-card p {
-  color: #cccccc;
-}
-
-/* Dark Mode Poll Status */
-.dark-mode .status {
-  background-color: #444;
-  color: #ffffff;
-}
-
-/* Dark Mode Active Poll Button */
-.dark-mode .status-btn {
-  background-color: #121212;
-  color: white;
-}
-
-.dark-mode .status-btn:hover {
-  background-color: #8392a1;
-}
-
-/* Dark Mode Disabled Poll Button */
-.dark-mode .disabled-btn {
-  background-color: #555;
-  color: #999;
-  cursor: not-allowed;
-}
-
-
-.dark-mode .tab {
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-}
-
-.dark-mode .tab:hover,
-.dark-mode .tab.active {
-  background-color: #0056b3;
-  color: #fff;
-}
-
-/* Dark Mode Rights Footer */
-.dark-mode .Rights p {
-  color: #bbbbbb;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  0% {
-      opacity: 0;
-      transform: translateY(20px);
-  }
-  100% {
-      opacity: 1;
-      transform: translateY(0);
-  }
-}
-@media (max-width: 750px) {
-  .poll-tabs{
-    margin-top: 20%;
-  }
-}
+body.dark-mode { background:#0b1020; color:#f5f7ff; }
+.dark-mode .sv-election-card,.dark-mode .sv-tabs,.dark-mode .sv-election-stat,.dark-mode .sv-empty { background:#11182b; border-color:#202a43; color:#f5f7ff; }
+.dark-mode .sv-page-heading p,.dark-mode .sv-election-card p,.dark-mode .sv-election-date { color:#98a5bd; }
+.dark-mode .sv-election-date strong { color:#d7def0; }
+.dark-mode .sv-tab { color:#98a5bd; }
+.dark-mode .sv-tab.active { background:#1b2750; color:#9eb0ff; }
+.dark-mode .sv-election-stat b { color:#f5f7ff; }
+@media(max-width:950px){ .sv-election-grid{grid-template-columns:repeat(2,1fr);} .sv-page-heading{align-items:start;flex-direction:column;} }
+@media(max-width:600px){ .sv-election-page{width:calc(100% - 28px);padding:35px 0 105px;} .sv-page-heading h1{font-size:34px;} .sv-election-stats{width:100%;} .sv-election-stat{flex:1;} .sv-election-grid{grid-template-columns:1fr;} }

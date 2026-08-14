@@ -3,63 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Voting System</title>
+    <title>SecureVote — Trusted Digital Elections</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
     <meta name="google-site-verification" content="1JKlFAlXjS7mBPebNmdSDhMyVHxPv6e6XunLSrHcrSY" />
 </head>
 <body class="{{ 'dark-mode' if dark_mode else '' }}">
     {% include 'header.html' %}
-    <input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">
-    <script src="{{ url_for('static', filename='header.js') }}"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
     <main>
-        <section id="home" class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <h2>Secure, Transparent, and Reliable Voting</h2>
-                    <p>Your voice matters. Participate in elections from anywhere with the assurance of data security and privacy.</p>
-                    <a href="/voting" class="button">Start Voting</a>
+        <section id="home" class="sv-hero">
+            <div class="sv-hero-grid"></div>
+            <div class="sv-hero-content">
+                <div class="sv-hero-badge"><span></span> Secure digital elections</div>
+                <h1>Your voice.<br><em>Your vote.</em><br>Your future.</h1>
+                <p>Participate in elections through a simple, transparent and secure digital voting experience designed around you.</p>
+                <div class="sv-hero-actions">
+                    <a href="{{ url_for('vote') }}" class="sv-hero-primary">Explore elections <span>→</span></a>
+                    <a href="#about" class="sv-hero-secondary">See how it works</a>
+                </div>
+                <div class="sv-trust-row">
+                    <div><strong>01</strong><span>Identity<br>verification</span></div>
+                    <div><strong>02</strong><span>One person<br>one vote</span></div>
+                    <div><strong>03</strong><span>Transparent<br>results</span></div>
+                </div>
+            </div>
+            <div class="sv-hero-visual">
+                <div class="sv-orbit sv-orbit-one"></div>
+                <div class="sv-orbit sv-orbit-two"></div>
+                <div class="sv-vote-card">
+                    <div class="sv-card-top">
+                        <span class="sv-live"><i></i> LIVE ELECTION</span>
+                        <span>•••</span>
+                    </div>
+                    <p class="sv-card-label">Campus Leadership</p>
+                    <h3>Choose your representative</h3>
+                    <div class="sv-candidate-mini"><span class="sv-mini-avatar">A</span><span>Candidate A</span><b>42%</b></div>
+                    <div class="sv-candidate-mini"><span class="sv-mini-avatar alt">B</span><span>Candidate B</span><b>35%</b></div>
+                    <div class="sv-candidate-mini"><span class="sv-mini-avatar third">C</span><span>Candidate C</span><b>23%</b></div>
+                    <div class="sv-progress"><span></span></div>
+                    <small>1,248 votes recorded</small>
+                </div>
+                <div class="sv-floating-check">✓ <span>Vote securely recorded</span></div>
+            </div>
+        </section>
+
+        <section id="about" class="sv-section sv-how">
+            <div class="sv-section-heading">
+                <span class="sv-eyebrow">HOW IT WORKS</span>
+                <h2>Voting shouldn't feel complicated.</h2>
+                <p>A clear experience from identity verification to the final confirmation.</p>
+            </div>
+            <div class="sv-steps">
+                <article><span>01</span><h3>Verify</h3><p>Confirm your identity with secure account verification.</p></article>
+                <article><span>02</span><h3>Choose</h3><p>Explore active elections and review every candidate before deciding.</p></article>
+                <article><span>03</span><h3>Vote</h3><p>Cast your ballot once and receive a clear confirmation.</p></article>
+                <article><span>04</span><h3>Track</h3><p>Review your voting history and follow published results.</p></article>
+            </div>
+        </section>
+
+        <section class="sv-section sv-security">
+            <div>
+                <span class="sv-eyebrow">BUILT FOR TRUST</span>
+                <h2>Security behind every click.</h2>
+                <p>SecureVote combines account verification, protected sessions and controlled voting flows so the experience stays simple without treating security as an afterthought.</p>
+            </div>
+            <div class="sv-security-list">
+                <div><span>✓</span><strong>Verified accounts</strong><small>Identity checks before participation</small></div>
+                <div><span>✓</span><strong>Protected ballots</strong><small>One vote per election</small></div>
+                <div><span>✓</span><strong>Clear results</strong><small>Results stay easy to understand</small></div>
+            </div>
+        </section>
+
+        <section id="contact" class="sv-section sv-contact">
+            <div class="sv-contact-card">
+                <span class="sv-eyebrow">NEED HELP?</span>
+                <h2>We're here when you need us.</h2>
+                <p>Questions about your account, elections or voting experience? Reach out through your preferred channel.</p>
+                <div class="sv-contact-actions">
+                    <a href="mailto:2024btechaimlkapil17131@poornima.edu.in">Email support</a>
+                    <a href="https://wa.me/9546592675?text=Hello%20there!" target="_blank" rel="noopener">WhatsApp</a>
                 </div>
             </div>
         </section>
-
-        <section id="about" class="content-section">
-            <div class="container">
-                <h2>About Our System</h2>
-                <p>Our online voting system is designed to streamline the voting process, ensuring accessibility, security, and integrity in elections. We leverage the latest encryption technologies to protect your vote and maintain confidentiality.</p>
-            </div>
-        </section>
-
-        <section id="work" class="content-section">
-            <div class="container">
-                <h2>How It Works</h2>
-                <p>Register, verify your identity, and cast your vote in just a few clicks. Our system provides step-by-step guidance to ensure a seamless experience for all users.</p>
-            </div>
-        </section>
-
-        <section id="contact" class="content-section">
-            <div class="container">
-                <h2>Contact Us</h2>
-                <p>If you have any questions or need assistance, please reach out to our support team. We’re here to help you make your voice heard.</p>
-                <div class="icon-container">
-                    <a href="https://wa.me/9546592675?text=Hello%20there!" target="_blank" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                    </a>
-                    <a href="mailto:2024btechaimlkapil17131@poornima.edu.in?subject=Subject%20Here&body=Hello%20there" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail">
-                    </a>
-                    <a href="https://www.linkedin.com" target="_blank" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn">
-                    </a>
-                </div>        
-            </div>
-        </section>
     </main>
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Online Voting System. All rights reserved.</p>
-        </div>
+
+    <footer class="sv-footer">
+        <span>© 2026 SecureVote</span>
+        <span>Designed for secure, accessible digital elections.</span>
     </footer>
+
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

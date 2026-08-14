@@ -1,65 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Voting System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Command Center • SecureVote</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-v2.css') }}">
 </head>
-<body>
-    {% include 'header.html' %}
-    <input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">
-    <script src="{{ url_for('static', filename='header.js') }}"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <main>
-        <section id="home" class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <h2>Secure, Transparent, and Reliable Voting</h2>
-                    <p>Your voice matters. Participate in elections from anywhere with the assurance of data security and privacy.</p>
-                    <a href="/electionform" class="button">Add New Election</a>
-                </div>
-            </div>
-        </section>
+<body class="{{ 'dark-mode' if dark_mode else '' }}">
+{% include 'header.html' %}
+<main class="adm-shell">
+<section class="adm-top">
+ <div><div class="adm-eyebrow">SECUREVOTE • COMMAND CENTER</div><h1>Good control starts with clarity.</h1><p>Manage elections, candidates and voter activity from one focused workspace.</p></div>
+ <div class="adm-actions">
+   <a class="adm-btn primary" href="{{ url_for('electionform') }}">＋ New election</a>
+   <a class="adm-btn" href="{{ url_for('admin_voter_records') }}">Voter records</a>
+ </div>
+</section>
 
-        <section id="about" class="content-section">
-            <div class="container">
-                <h2>About Our System</h2>
-                <p>Our online voting system is designed to streamline the voting process, ensuring accessibility, security, and integrity in elections. We leverage the latest encryption technologies to protect your vote and maintain confidentiality.</p>
-            </div>
-        </section>
+<section class="adm-grid">
+ <article class="adm-stat"><div class="adm-stat-top"><span>Elections</span><i class="adm-icon">◈</i></div><strong>{{ elections|length if elections is defined else '—' }}</strong><small>Total elections</small></article>
+ <article class="adm-stat"><div class="adm-stat-top"><span>Active</span><i class="adm-icon">●</i></div><strong>{{ active_elections if active_elections is defined else '—' }}</strong><small>Currently running</small></article>
+ <article class="adm-stat"><div class="adm-stat-top"><span>Voters</span><i class="adm-icon">♙</i></div><strong>{{ total_voters if total_voters is defined else '—' }}</strong><small>Registered voters</small></article>
+ <article class="adm-stat"><div class="adm-stat-top"><span>Votes cast</span><i class="adm-icon">✓</i></div><strong>{{ total_votes if total_votes is defined else '—' }}</strong><small>Recorded ballots</small></article>
+</section>
 
-        <section id="work" class="content-section">
-            <div class="container">
-                <h2>How It Works</h2>
-                <p>Register, verify your identity, and cast your vote in just a few clicks. Our system provides step-by-step guidance to ensure a seamless experience for all users.</p>
-            </div>
-        </section>
+<section class="adm-panels">
+ <div class="adm-panel">
+  <header class="adm-panel-head"><h2>Election activity</h2><span>Live workspace</span></header>
+  {% if elections is defined and elections %}
+  <div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Election</th><th>Status</th><th>Dates</th><th>Action</th></tr></thead><tbody>
+  {% for e in elections %}
+   <tr><td><strong>{{ e.title }}</strong></td><td><span class="adm-status {{ e.status|lower }}">{{ e.status }}</span></td><td>{{ e.start_date }} → {{ e.end_date }}</td><td><a href="{{ url_for('adminvote', election_id=e.id) if e.id is defined else '#' }}">Manage</a></td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="adm-empty">No elections are available yet. Create your first election to start.</div>{% endif %}
+ </div>
 
-        <section id="contact" class="content-section">
-            <div class="container">
-                <h2>Contact Us</h2>
-                <p>If you have any questions or need assistance, please reach out to our support team. We’re here to help you make your voice heard.</p>
-                <div class="icon-container">
-                    <a href="https://wa.me/9546592675?text=Hello%20there!" target="_blank" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                    </a>
-                    <a href="mailto:2024btechaimlkapil17131@poornima.edu.in?subject=Subject%20Here&body=Hello%20there" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail">
-                    </a>
-                    <a href="https://www.linkedin.com" target="_blank" class="icon">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn">
-                    </a>
-                </div>        
-            </div>
-        </section>
-
-    </main>
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Online Voting System. All rights reserved.</p>
-        </div>
-    </footer>
-</body>
-</html>
+ <aside class="adm-panel">
+  <header class="adm-panel-head"><h2>Quick actions</h2><span>Shortcuts</span></header>
+  <div class="adm-quick">
+   <a href="{{ url_for('electionform') }}"><span>🗳️</span>Create election</a>
+   <a href="{{ url_for('admin_voter_records') }}"><span>👥</span>Voter records</a>
+   <a href="{{ url_for('adminresults') }}"><span>📊</span>Results</a>
+   <a href="{{ url_for('notifications') }}"><span>🔔</span>Notifications</a>
+  </div>
+  <div class="adm-mini-list">
+   <div class="adm-mini"><div><b>Security first</b><small>Keep credentials and API keys server-side.</small></div><span class="adm-number">✓</span></div>
+   <div class="adm-mini"><div><b>Responsive by default</b><small>Manage elections from smaller screens too.</small></div><span class="adm-number">↗</span></div>
+  </div>
+ </aside>
+</section>
+</main>
+<script src="{{ url_for('static', filename='header.js') }}"></script>
+</body></html>

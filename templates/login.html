@@ -1,14 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Online Voting System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login • SecureVote</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='auth-v2.css') }}">
 </head>
-<body>
-    <!-- Background Video -->
+<body class="auth-page">
+<section class="auth-showcase">
+  <div class="auth-brand"><div class="auth-brand-mark">✓</div> SecureVote</div>
+  <div class="auth-hero">
+    <div class="auth-kicker">SECUREVOTE • LOGIN</div>
+    <h1>Voting should feel <span>simple.</span></h1>
+    <p>A cleaner, calmer election experience built around trust, clarity and fast access on every screen.</p>
+    <div class="auth-points"><div class="auth-point">🔒 Secure access</div><div class="auth-point">⚡ Fast verification</div><div class="auth-point">📱 Mobile ready</div></div>
+  </div>
+  <div class="auth-footer">SecureVote V2 • Your vote. Your voice.</div>
+</section>
+<section class="auth-card-wrap"><main class="auth-card">
+  <h2>Welcome back.</h2>
+  <p class="auth-subtitle">Sign in to continue to your SecureVote dashboard.</p>
+  <!-- Background Video -->
     <video autoplay muted loop id="backgroundVideo">
         <source src="{{ url_for('static', filename='Images/login-video.mp4') }}" type="video/mp4">
     </video>
@@ -376,5 +388,5 @@ function resetPassword() {
 
 
         </script>
-</body>
-</html>
+</main></section>
+</body></html>

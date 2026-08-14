@@ -1,59 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Voting System</title>
+    <title>Elections — SecureVote</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='voting.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='elections-v2.css') }}">
 </head>
-
 <body class="{{ 'dark-mode' if dark_mode else '' }}">
-    {% include 'header.html' %}
-    <div class="container">
-        <div class="poll-tabs">
-            <button class="tab active" onclick="filterPolls('all')">All</button>
-            <button class="tab" onclick="filterPolls('Active')">Active</button>
-            <button class="tab" onclick="filterPolls('Upcoming')">Upcoming</button>
-            <button class="tab" onclick="filterPolls('Completed')">Completed</button>
+{% include 'header.html' %}
+
+<main class="sv-election-page">
+    <section class="sv-page-heading">
+        <div>
+            <span class="eyebrow">ELECTION CENTER</span>
+            <h1>Choose where your voice matters.</h1>
+            <p>Browse elections, review their status and participate when voting is open.</p>
         </div>
-        <div class="poll-cards" id="poll-container">
-            {% for poll in elections %}
-            <div class="poll-card" data-status="{{ poll['status'] | lower }}">
-                <h2>{{ poll['title'] }}</h2>
-                <p>{{ poll['description'] }}</p>
-                <span class="status {{ poll['status'] | lower }}">{{ poll['status'] }}</span>
-
-                <a href="{{ poll['url'] }}"
-                    class="status-btn {% if poll['status'] == 'Upcoming' %}disabled-btn{% endif %}" {% if
-                    poll['status']=="Upcoming" %} onclick="return false;" {% endif %}>
-                    {{ poll['click'] }}
-                </a>
-
-                <!-- Show dates dynamically -->
-                {% if poll['status'] == "Upcoming" %}
-                <p class="votes">Starts: {{ poll['startDate'] }}</p>
-                {% elif poll['status'] == "Completed" %}
-                <p class="votes">Ended: {{ poll['endDate'] }}</p>
-                {% else %}
-                <p class="votes">Ends: {{ poll['endDate'] }}</p>
-                {% endif %}
-            </div>
-            {% else %}
-            <p>No elections available at the moment.</p>
-            {% endfor %}
+        <div class="sv-election-stats">
+            <div class="sv-election-stat"><b>{{ elections|length }}</b> total</div>
+            <div class="sv-election-stat"><b>{{ elections|selectattr('status', 'equalto', 'Active')|list|length }}</b> active</div>
         </div>
+    </section>
 
+    <div class="sv-tabs" role="tablist">
+        <button class="sv-tab active" data-filter="all" onclick="filterPolls('all')">All elections</button>
+        <button class="sv-tab" data-filter="Active" onclick="filterPolls('Active')">Active</button>
+        <button class="sv-tab" data-filter="Upcoming" onclick="filterPolls('Upcoming')">Upcoming</button>
+        <button class="sv-tab" data-filter="Completed" onclick="filterPolls('Completed')">Completed</button>
     </div>
-    <footer>
-        <div class="Rights">
-            <p>&copy;2024 Online Voting System. All rights reserved.</p>
+
+    <section class="sv-election-grid" id="poll-container">
+        {% for poll in elections %}
+        <article class="sv-election-card" data-status="{{ poll['status']|lower }}">
+            <div class="sv-election-top">
+                <span class="sv-election-status {{ poll['status']|lower }}">{{ poll['status'] }}</span>
+                <span class="sv-election-number">#{{ loop.index|string|replace(',', '') }}</span>
+            </div>
+            <h2>{{ poll['title'] }}</h2>
+            <p>{{ poll['description'] or 'No additional description has been provided for this election.' }}</p>
+            <div class="sv-election-footer">
+                <div class="sv-election-date">
+                    {% if poll['status'] == 'Upcoming' %}
+                        Starts
+                        <strong>{{ poll['startDate'] }}</strong>
+                    {% elif poll['status'] == 'Completed' %}
+                        Ended
+                        <strong>{{ poll['endDate'] }}</strong>
+                    {% else %}
+                        Voting closes
+                        <strong>{{ poll['endDate'] }}</strong>
+                    {% endif %}
+                </div>
+                <a href="{{ poll['url'] }}" class="sv-election-action {% if poll['status'] == 'Upcoming' %}disabled{% endif %}" {% if poll['status'] == 'Upcoming' %}aria-disabled="true" onclick="return false;"{% endif %}>
+                    {{ poll['click'] }} <span>→</span>
+                </a>
+            </div>
+        </article>
+        {% else %}
+        <div class="sv-empty">
+            <strong>No elections available</strong>
+            <p>There are no elections to display right now. Check back later.</p>
         </div>
-    </footer>
-    <script src="{{ url_for('static', filename='header.js') }}"></script>
-    <script src="{{ url_for('static', filename='react.js') }}"></script>
+        {% endfor %}
+    </section>
+</main>
 
+<script src="{{ url_for('static', filename='header.js') }}"></script>
+<script src="{{ url_for('static', filename='react.js') }}"></script>
 </body>
-
 </html>

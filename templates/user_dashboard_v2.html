@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecureVote — Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='securevote-user-v2.css') }}">
+</head>
+<body>
+<div class="sv-user-shell">
+  <main class="sv-user-wrap">
+    <section class="sv-hero">
+      <div>
+        <div class="sv-eyebrow">SecureVote • V2</div>
+        <h1 class="sv-title">Your voting command center.</h1>
+        <p class="sv-subtitle">See what needs your attention, discover active elections, and review your voting activity from one clean dashboard.</p>
+      </div>
+      <div class="sv-actions">
+        <a class="sv-btn primary" href="{{ url_for('voting') }}">Vote now</a>
+        <a class="sv-btn" href="{{ url_for('my_votes') }}">My votes</a>
+      </div>
+    </section>
+
+    <section class="sv-grid">
+      <article class="sv-card">
+        <div class="sv-eyebrow">Active elections</div>
+        <div class="sv-stat">{{ active_elections|default(0) }}</div>
+        <p>Elections currently available for voting.</p>
+      </article>
+      <article class="sv-card">
+        <div class="sv-eyebrow">Your votes</div>
+        <div class="sv-stat">{{ total_votes|default(0) }}</div>
+        <p>Your recorded participation across elections.</p>
+      </article>
+      <article class="sv-card">
+        <div class="sv-eyebrow">Notifications</div>
+        <div class="sv-stat">{{ notification_count|default(0) }}</div>
+        <p>Updates waiting for you.</p>
+      </article>
+
+      <article class="sv-card wide">
+        <h2>Live elections</h2>
+        <p>Jump directly into an election without hunting through menus.</p>
+        <div class="sv-list">
+          {% for election in elections|default([]) %}
+          <div class="sv-item">
+            <div class="sv-item-main">
+              <div class="sv-item-title">{{ election.title }}</div>
+              <div class="sv-item-meta">{{ election.description|default('Voting is currently open.') }}</div>
+            </div>
+            <a class="sv-btn primary" href="{{ url_for('show_candidates', election_id=election.id) }}">Open</a>
+          </div>
+          {% else %}
+          <div class="sv-empty">No active elections right now.</div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="sv-card">
+        <h2>Quick access</h2>
+        <p>Everything important, one tap away.</p>
+        <div class="sv-list">
+          <a class="sv-btn" href="{{ url_for('notifications') }}">Notifications</a>
+          <a class="sv-btn" href="{{ url_for('my_votes') }}">Voting history</a>
+          <a class="sv-btn" href="{{ url_for('voting') }}">Browse elections</a>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+</body>
+</html>

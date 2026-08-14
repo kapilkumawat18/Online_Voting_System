@@ -1,0 +1,10 @@
+SecureVote V2 Sprint 7 QA report
+
+Unresolved Git conflict markers detected in:
+NONE
+
+Release layer files added:
+static/securevote-v2-release.css
+static/securevote-v2-release.js
+templates/error_v2.html
+SPRINT_7_RELEASE_QA.md

@@ -1,0 +1,30 @@
+
+/* SecureVote V2 — Sprint 7 Release QA layer */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;overflow-x:hidden}
+img,video{max-width:100%;height:auto}
+button,input,select,textarea{font:inherit}
+button,a{touch-action:manipulation}
+:focus-visible{outline:3px solid rgba(6,182,212,.65);outline-offset:3px}
+.sv-page-transition{animation:svPageIn .32s ease both}
+@keyframes svPageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sv-loading{position:relative;pointer-events:none;opacity:.72}
+.sv-loading::after{content:"";display:inline-block;width:14px;height:14px;margin-left:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:svSpin .65s linear infinite}
+@keyframes svSpin{to{transform:rotate(360deg)}}
+.sv-skeleton{background:linear-gradient(90deg,rgba(148,163,184,.08),rgba(148,163,184,.18),rgba(148,163,184,.08));background-size:220% 100%;animation:svShimmer 1.3s infinite;border-radius:12px}
+@keyframes svShimmer{to{background-position:-220% 0}}
+.sv-alert{padding:13px 15px;border-radius:14px;margin:12px 0;border:1px solid rgba(148,163,184,.18)}
+.sv-alert.error{background:rgba(239,68,68,.10);color:#fecaca}
+.sv-alert.success{background:rgba(34,197,94,.10);color:#bbf7d0}
+.sv-alert.info{background:rgba(6,182,212,.10);color:#cffafe}
+.sv-empty-state{text-align:center;padding:48px 18px;color:#94a3b8}
+.sv-empty-state strong{display:block;color:inherit;font-size:1.05rem;margin-bottom:6px}
+@media(max-width:768px){
+  table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .container,.content,.main-content{max-width:100%;overflow-x:hidden}
+  input,select,textarea{max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
