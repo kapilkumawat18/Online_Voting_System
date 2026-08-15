@@ -1,393 +1,220 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Login • SecureVote</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='auth-v2.css') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Sign in • SecureVote</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth-v2.css') }}">
 </head>
-<body class="auth-page">
-<section class="auth-showcase">
-  <div class="auth-brand"><div class="auth-brand-mark">✓</div> SecureVote</div>
-  <div class="auth-hero">
-    <div class="auth-kicker">SECUREVOTE • LOGIN</div>
-    <h1>Voting should feel <span>simple.</span></h1>
-    <p>A cleaner, calmer election experience built around trust, clarity and fast access on every screen.</p>
-    <div class="auth-points"><div class="auth-point">🔒 Secure access</div><div class="auth-point">⚡ Fast verification</div><div class="auth-point">📱 Mobile ready</div></div>
-  </div>
-  <div class="auth-footer">SecureVote V2 • Your vote. Your voice.</div>
-</section>
-<section class="auth-card-wrap"><main class="auth-card">
-  <h2>Welcome back.</h2>
-  <p class="auth-subtitle">Sign in to continue to your SecureVote dashboard.</p>
-  <!-- Background Video -->
-    <video autoplay muted loop id="backgroundVideo">
-        <source src="{{ url_for('static', filename='Images/login-video.mp4') }}" type="video/mp4">
-    </video>
 
-    <!-- Header -->
-    <h1>Secure Vote</h1>
+<body class="auth-shell">
+    <main class="auth-page">
+        <section class="auth-showcase" aria-label="SecureVote introduction">
+            <div class="auth-brand">
+                <div class="auth-brand-mark">✓</div>
+                <div><strong>Secure<span>Vote</span></strong><small>Trusted digital elections</small></div>
+            </div>
 
-    <div class="container">
-        <!-- Login Form -->
-        <div class="form" id="loginForm">
-            <p>Login</p>
-            <form action="/login" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="next" value="{{ next|default('') }}">
-                <label for="role">Login as:</label>
-                <select id="role" name="role" required>
-                    <option value="voter">Voter</option>
-                    <option value="admin">Admin</option>
-                </select>
+            <div class="auth-hero">
+                <span class="auth-kicker">SECUREVOTE • ACCESS</span>
+                <h1>Voting should feel <span>simple.</span></h1>
+                <p>One secure place to access elections, cast your vote and keep track of your participation.</p>
+                <div class="auth-points">
+                    <span>🔒 Secure access</span><span>⚡ Fast verification</span><span>📱 Responsive</span>
+                </div>
+            </div>
 
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" placeholder="Enter your Name" required>
+            <div class="auth-footer">SecureVote V2 · Your vote. Your voice.</div>
+        </section>
 
-                <label for="email">Email:</label>
-                <input type="text" id="username" name="username" placeholder="Enter your Email" required>
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+        <section class="auth-card-wrap">
+            <div class="auth-card">
+                <div class="auth-card-head">
+                    <span class="auth-eyebrow">WELCOME BACK</span>
+                    <h2 id="authTitle">Sign in to SecureVote</h2>
+                    <p id="authSubtitle">Use your account credentials to continue.</p>
+                </div>
 
                 {% with messages = get_flashed_messages(category_filter=['login_success', 'login_error']) %}
-                    {% if messages %}
-                        <div id="flash-messages">
-                            {% for message in messages %}
-                                <div class="alert">{{ message }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                {% if messages %}
+                <div class="auth-alerts">
+                    {% for message in messages %}<div class="auth-alert">{{ message }}</div>{% endfor %}
+                </div>
+                {% endif %}
                 {% endwith %}
 
-                <input type="submit" value="Login">
-                <p>Don't have an account? <a href="#" id="showRegister">Register here</a></p>
-                <p><a href="#" id="showForgotPassword">Forgot Password?</a></p>
-            </form>
-        </div>
-<!-- Forgot Password Form -->
-<div class="form" id="forgotPasswordForm" style="display: none;">
-    <p>Reset Password</p>
+                <!-- LOGIN -->
+                <section class="auth-form-panel" id="loginForm">
+                    <form action="{{ url_for('login') }}" method="POST" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="next" value="{{ next|default('') }}">
 
-    <!-- Message Display for Errors/Success -->
-    <div id="resetMessage" style="color: red; font-size: 12px; margin-bottom: 10px;"></div>
-    
-    <form>
-        <label for="resetEmail">Enter your Email:</label>
-        <input type="email" id="resetEmail" name="resetEmail" placeholder="Enter your email" required>
+                        <label for="loginRole">Login as</label>
+                        <select id="loginRole" name="role" required>
+                            <option value="voter">Voter</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-        <button type="button" id="sendResetOtpButton" onclick="sendResetOTP()">Send OTP</button>
+                        <label for="loginName">Full name</label>
+                        <input type="text" id="loginName" name="name" autocomplete="name"
+                            placeholder="Enter your full name" required>
 
-        <!-- OTP Verification Section (Hidden Initially) -->
-        <div id="resetOtpSection" style="display: none; margin-top: 10px;">
-            <label>Enter OTP:</label>
-            <input type="text" id="resetOtp" name="resetOtp" placeholder="Enter OTP">
-            <button type="button" onclick="verifyResetOTP()">Verify OTP</button>
-        </div>
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" name="username" autocomplete="email"
+                            placeholder="you@example.com" required>
 
-        <!-- New Password Section (Hidden Initially) -->
-        <div id="newPasswordSection" style="display: none; margin-top: 10px;">
-            <label for="newPassword">New Password:</label>
-            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
+                        <div class="auth-label-row"><label for="loginPassword">Password</label><a href="#"
+                                id="showForgotPassword">Forgot password?</a></div>
+                        <input type="password" id="loginPassword" name="password" autocomplete="current-password"
+                            placeholder="Enter your password" required>
 
-            <label for="confirmPassword">Confirm Password:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password">
+                        <button class="auth-primary" type="submit">Sign in <span>→</span></button>
+                        <p class="auth-switch">Don't have an account? <a href="#" id="showRegister">Create one</a></p>
+                    </form>
+                </section>
 
-            <button type="button" onclick="resetPassword()">Reset Password</button>
-        </div>
-    </form>
-</div>
+                <!-- REGISTER -->
+                <section class="auth-form-panel" id="registrationForm" hidden>
+                    <form action="{{ url_for('register') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label for="registerRole">Register as</label>
+                        <select id="registerRole" name="role" required>
+                            <option value="voter">Voter</option>
+                            <option value="admin">Admin</option>
+                        </select>
 
-<!-- Registration Form -->
-<div class="form" id="registrationForm" style="display: none;">
-    <p>Create your account</p>
-    <form action="/register" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label for="role">Register as:</label>
-        <select id="role" name="role" required>
-            <option value="voter">Voter</option>
-            <option value="admin">Admin</option>
-        </select>
+                        <label for="registerName">Full name</label>
+                        <input type="text" id="registerName" name="name" placeholder="Enter your full name" required>
 
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                        <label for="registerEmail">Email</label>
+                        <div class="input-action"><input type="email" id="registerEmail" name="email"
+                                placeholder="you@example.com" required><button type="button" class="secondary-action"
+                                id="sendOtpButton" onclick="sendOTP()">Send OTP</button></div>
 
-        <label for="email">Email:</label>
-        <div class="emails">
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-            <button type="button" id="sendOtpButton" onclick="sendOTP()">Send OTP</button>
-        </div>
+                        <div id="otpSection" class="auth-subpanel" hidden>
+                            <label for="otp">Verification OTP</label>
+                            <div class="input-action"><input type="text" id="otp" name="otp" inputmode="numeric"
+                                    maxlength="6" placeholder="6-digit OTP"><button type="button"
+                                    class="secondary-action" onclick="verifyOTP()">Verify</button></div>
+                        </div>
 
-        <!-- OTP Verification Section (Hidden Initially) -->
-        <div id="otpSection" style="display: none;">
-            <label for="otp">Enter OTP:</label>
-            <div class="OTP">
-                <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
-                <button type="button" id="verifyOtpButton" onclick="verifyOTP()">Verify OTP</button>
+                        <div id="Message" class="auth-message" aria-live="polite"></div>
+
+                        <label for="voterId">Voter ID</label>
+                        <input type="text" id="voterId" name="voterId" placeholder="Enter your voter ID" required>
+
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" name="password" autocomplete="new-password"
+                            placeholder="At least 8 characters" required>
+
+                        <button type="submit" id="registerSubmitButton" class="auth-primary" disabled>Create
+                            account</button>
+                        <p class="auth-switch">Already have an account? <a href="#" id="showLogin">Sign in</a></p>
+                    </form>
+                </section>
+
+                <!-- FORGOT PASSWORD -->
+                <section class="auth-form-panel" id="forgotPasswordForm" hidden>
+                    <div id="resetMessage" class="auth-message" aria-live="polite"></div>
+                    <form onsubmit="return false;">
+                        <label for="resetEmail">Email</label>
+                        <input type="email" id="resetEmail" placeholder="you@example.com" required>
+                        <button type="button" id="sendResetOtpButton" class="auth-primary" onclick="sendResetOTP()">Send
+                            verification OTP</button>
+
+                        <div id="resetOtpSection" class="auth-subpanel" hidden>
+                            <label for="resetOtp">Verification OTP</label>
+                            <div class="input-action"><input type="text" id="resetOtp" inputmode="numeric" maxlength="6"
+                                    placeholder="6-digit OTP"><button type="button" class="secondary-action"
+                                    onclick="verifyResetOTP()">Verify</button></div>
+                        </div>
+
+                        <div id="newPasswordSection" class="auth-subpanel" hidden>
+                            <label for="newPassword">New password</label>
+                            <input type="password" id="newPassword" placeholder="At least 8 characters">
+                            <label for="confirmPassword">Confirm password</label>
+                            <input type="password" id="confirmPassword" placeholder="Repeat your password">
+                            <button type="button" class="auth-primary" onclick="resetPassword()">Reset password</button>
+                        </div>
+                    </form>
+                    <p class="auth-switch"><a href="#" id="backToLogin">← Back to sign in</a></p>
+                </section>
             </div>
-        </div>
-        <div id="Message" style="color: red; font-size: 12px; margin-bottom: 10px;"></div>
-        <label for="voterId">Voter ID:</label>
-        <input type="text" id="voterId" name="voterId" placeholder="Enter your voter ID" required>
+        </section>
+    </main>
 
-        <label for="regPassword">Password:</label>
-        <input type="password" id="regPassword" name="password" placeholder="Enter your password" required>
-
-        <div id="messageContainer">
-            {% with messages = get_flashed_messages(category_filter=['login_success', 'login_error']) %}
-                    {% if messages %}
-                        <div id="flash-messages">
-                            {% for message in messages %}
-                                <div class="alert">{{ message }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-        </div>
-
-        <button type="submit" id="registerSubmitButton" disabled title="Verify your email with the OTP first">Register</button>
-        <p>Already have an account? <a href="#" id="showLogin">Login here</a>.</p>
-    </form>
-</div>
-
-
-    <!-- JavaScript for Switching Forms -->
     <script>
-       // JavaScript for switching between forms
-const loginForm = document.getElementById('loginForm');
-const registrationForm = document.getElementById('registrationForm');
-const forgotPasswordForm = document.getElementById("forgotPasswordForm");
-
-function getCSRFToken() {
-    const meta = document.querySelector('meta[name="csrf-token"]');
-    return meta ? meta.content : '';
-}
-
-const showRegister = document.getElementById('showRegister');
-const showLogin = document.getElementById('showLogin');
-const showForgotPassword = document.getElementById("showForgotPassword");
-
-showRegister.addEventListener('click', function(e) {
-    e.preventDefault();
-    loginForm.style.display = 'none';
-    registrationForm.style.display = 'block';
-});
-
-showLogin.addEventListener('click', function(e) {
-    e.preventDefault();
-    registrationForm.style.display = 'none';
-    loginForm.style.display = 'block';
-});
-
-showForgotPassword.addEventListener("click", function (e) {
-    e.preventDefault();
-    loginForm.style.display = "none";
-    forgotPasswordForm.style.display = "block";
-});
-
-// Show message function 
-function Message(message, color = "red") {
-    let messageDiv = document.getElementById("Message");
-    messageDiv.style.color = color;
-    messageDiv.innerText = message;
-}
-
-let otpCooldown = false;
-let resetOtpCooldown = false;
-
-// Function to send OTP for registration
-function sendOTP() {
-    if (otpCooldown) return;
-
-    let email = document.getElementById("email").value;
-    let otpButton = document.getElementById("sendOtpButton");
-
-    if (!email) {
-        Message("Please enter your email first.");
-        return;
-    }
-
-    // Disable button and show sending text
-    otpButton.disabled = true;
-    otpButton.innerText = "Sending...";
-
-    fetch('/send_otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify({ email: email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        Message(data.message, data.success ? "green" : "red");
-
-        if ( data.message , data.success ? "green" : "red") {
-            document.getElementById("otpSection").style.display = "block";
-            startOTPTimer("sendOtpButton");
-        } else {
-            otpButton.innerText = "Send OTP";
-            otpButton.disabled = false;
+        const loginForm = document.getElementById('loginForm');
+        const registrationForm = document.getElementById('registrationForm');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        function getCSRFToken() { return document.querySelector('meta[name="csrf-token"]')?.content || ''; }
+        function showPanel(panel) {
+            [loginForm, registrationForm, forgotPasswordForm].forEach(p => p.hidden = p !== panel);
+            if (panel === registrationForm) { authTitle.textContent = 'Create your account'; authSubtitle.textContent = 'Verify your email, then create your SecureVote account.'; }
+            else if (panel === forgotPasswordForm) { authTitle.textContent = 'Reset your password'; authSubtitle.textContent = 'Verify your email before choosing a new password.'; }
+            else { authTitle.textContent = 'Sign in to SecureVote'; authSubtitle.textContent = 'Use your account credentials to continue.'; }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Message("Failed to send OTP. Please try again.");
-        otpButton.innerText = "Send OTP";
-        otpButton.disabled = false;
-    });
-}
+        document.getElementById('showRegister').onclick = e => { e.preventDefault(); showPanel(registrationForm); };
+        document.getElementById('showLogin').onclick = e => { e.preventDefault(); showPanel(loginForm); };
+        document.getElementById('showForgotPassword').onclick = e => { e.preventDefault(); showPanel(forgotPasswordForm); };
+        document.getElementById('backToLogin').onclick = e => { e.preventDefault(); showPanel(loginForm); };
 
-
-function verifyOTP() {
-    let otp = document.getElementById("otp").value;
-    fetch('/verify_otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify({ otp: otp })
-    })
-    .then(response => response.json())
-    .then(data => {
-        Message(data.message, data.success ? "green" : "red");
-        // The backend now requires the email to be OTP-verified before it will
-        // accept /register at all, so the submit button stays disabled until
-        // verification actually succeeds (previously it was always clickable,
-        // making the OTP step purely cosmetic).
-        const registerSubmit = document.getElementById("registerSubmitButton");
-        if (registerSubmit) registerSubmit.disabled = !data.success;
-    })
-    .catch(error => console.error('Error:', error));
-}
-
-// Verification is tied to the exact email that was verified — if the user
-// edits the email after verifying, require them to verify again.
-document.getElementById("email").addEventListener("input", function () {
-    const registerSubmit = document.getElementById("registerSubmitButton");
-    if (registerSubmit) registerSubmit.disabled = true;
-});
-
-// Function to start OTP cooldown timer
-function startOTPTimer(buttonId) {
-    let button = document.getElementById(buttonId);
-    let timeLeft = 120;
-
-    if (buttonId === "sendOtpButton") otpCooldown = true;
-    if (buttonId === "sendResetOtpButton") resetOtpCooldown = true;
-
-    button.disabled = true;
-    button.textContent = `Resend (${timeLeft}s)`;
-
-    let countdown = setInterval(() => {
-        timeLeft--;
-        button.textContent = `Resend (${timeLeft}s)`;
-
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            button.textContent = "Send OTP";
-            button.disabled = false;
-
-            if (buttonId === "sendOtpButton") otpCooldown = false;
-            if (buttonId === "sendResetOtpButton") resetOtpCooldown = false;
+        let otpCooldown = false, resetOtpCooldown = false;
+        function Message(message, color = 'red') { const el = document.getElementById('Message'); el.textContent = message; el.style.color = color; }
+        function showMessage(message, color = 'red') { const el = document.getElementById('resetMessage'); el.textContent = message; el.style.color = color; }
+        function startOTPTimer(id) {
+            const b = document.getElementById(id); let t = 120;
+            if (id === 'sendOtpButton') otpCooldown = true; else resetOtpCooldown = true;
+            b.disabled = true; b.textContent = `Resend (${t}s)`;
+            const timer = setInterval(() => { t--; b.textContent = `Resend (${t}s)`; if (t <= 0) { clearInterval(timer); b.disabled = false; b.textContent = 'Send OTP'; if (id === 'sendOtpButton') otpCooldown = false; else resetOtpCooldown = false; } }, 1000);
         }
-    }, 1000);
-}
-
-// Show message function (used for reset password messages)
-function showMessage(message, color = "red") {
-    let messageDiv = document.getElementById("resetMessage");
-    messageDiv.style.color = color;
-    messageDiv.innerText = message;
-}
-// Function to send reset password OTP
-function sendResetOTP() {
-    if (resetOtpCooldown) return;
-
-    let email = document.getElementById("resetEmail").value;
-    let otpButton = document.getElementById("sendResetOtpButton");
-
-    if (!email) {
-        showMessage("Please enter your email first.");
-        return;
-    }
-
-    otpButton.disabled = true;
-    otpButton.innerText = "Sending...";
-
-    fetch('/send_reset_otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify({ email: email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        showMessage(data.message, data.success ? "green" : "red");
-        if (data.success) {
-            document.getElementById("resetOtpSection").style.display = "block";
-            startOTPTimer("sendResetOtpButton");
-        } else {
-            otpButton.innerText = "Send OTP";
-            otpButton.disabled = false;
+        function sendOTP() {
+            if (otpCooldown) return;
+            const email = document.getElementById('registerEmail').value.trim(), b = document.getElementById('sendOtpButton');
+            if (!email) { Message('Please enter your email first.'); return; }
+            b.disabled = true; b.textContent = 'Sending…';
+            fetch('/send_otp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify({ email }) })
+                .then(r => r.json()).then(d => { Message(d.message, d.success ? '#12b76a' : '#f04438'); if (d.success) { document.getElementById('otpSection').hidden = false; startOTPTimer('sendOtpButton'); } else { b.disabled = false; b.textContent = 'Send OTP'; } })
+                .catch(() => { Message('Unable to send OTP. Please try again.'); b.disabled = false; b.textContent = 'Send OTP'; });
         }
-    })
-    .catch(error => {
-        showMessage("Error sending OTP, try again.");
-        otpButton.innerText = "Send OTP";
-        otpButton.disabled = false;
-    });
-}
-
-// Function to verify reset OTP
-function verifyResetOTP() {
-    let otp = document.getElementById("resetOtp").value;
-
-    fetch('/verify_reset_otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify({ otp: otp })
-    })
-    .then(response => response.json())
-    .then(data => {
-        showMessage(data.message, data.success ? "green" : "red");
-        if (data.success) {
-            document.getElementById("newPasswordSection").style.display = "block";
+        function verifyOTP() {
+            const otp = document.getElementById('otp').value.trim();
+            if (!/^\d{6}$/.test(otp)) { Message('Enter the 6-digit OTP.'); return; }
+            fetch('/verify_otp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify({ otp }) })
+                .then(r => r.json()).then(d => { Message(d.message, d.success ? '#12b76a' : '#f04438'); document.getElementById('registerSubmitButton').disabled = !d.success; })
+                .catch(() => Message('OTP verification failed. Please try again.'));
         }
-    })
-    .catch(error => showMessage("OTP verification failed."));
-}
+        document.getElementById('registerEmail').addEventListener('input', () => document.getElementById('registerSubmitButton').disabled = true);
 
-// Function to reset password
-function resetPassword() {
-    let newPassword = document.getElementById("newPassword").value;
-    let confirmPassword = document.getElementById("confirmPassword").value;
-
-    if (newPassword !== confirmPassword) {
-        showMessage("Passwords do not match!");
-        return;
-    }
-
-    fetch('/reset_password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-        body: JSON.stringify({ password: newPassword })
-    })
-    .then(response => response.json())
-    .then(data => {
-        showMessage(data.message, data.success ? "green" : "red");
-        if (data.success) {
-            setTimeout(() => {
-                window.location.href = "/"; // Redirect to login after success
-            }, 2000);
+        function sendResetOTP() {
+            if (resetOtpCooldown) return;
+            const email = document.getElementById('resetEmail').value.trim(), b = document.getElementById('sendResetOtpButton');
+            if (!email) { showMessage('Please enter your email first.'); return; }
+            b.disabled = true; b.textContent = 'Sending…';
+            fetch('/send_reset_otp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify({ email }) })
+                .then(r => r.json()).then(d => { showMessage(d.message, d.success ? '#12b76a' : '#f04438'); if (d.success) { document.getElementById('resetOtpSection').hidden = false; startOTPTimer('sendResetOtpButton'); } else { b.disabled = false; b.textContent = 'Send verification OTP'; } })
+                .catch(() => { showMessage('Unable to send OTP. Please try again.'); b.disabled = false; b.textContent = 'Send verification OTP'; });
         }
-    })
-    .catch(error => showMessage("Password reset failed."));
-}
-        setTimeout(function() {
-        let alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            alert.style.display = 'none';
-        });
-        }, 5000);
+        function verifyResetOTP() {
+            const otp = document.getElementById('resetOtp').value.trim();
+            if (!/^\d{6}$/.test(otp)) { showMessage('Enter the 6-digit OTP.'); return; }
+            fetch('/verify_reset_otp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify({ otp }) })
+                .then(r => r.json()).then(d => { showMessage(d.message, d.success ? '#12b76a' : '#f04438'); if (d.success) document.getElementById('newPasswordSection').hidden = false; })
+                .catch(() => showMessage('OTP verification failed.'));
+        }
+        function resetPassword() {
+            const p = document.getElementById('newPassword').value, c = document.getElementById('confirmPassword').value;
+            if (p.length < 8) { showMessage('Password must be at least 8 characters.'); return; }
+            if (p !== c) { showMessage('Passwords do not match.'); return; }
+            fetch('/reset_password', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify({ password: p }) })
+                .then(r => r.json()).then(d => { showMessage(d.message, d.success ? '#12b76a' : '#f04438'); if (d.success) setTimeout(() => showPanel(loginForm), 1200); })
+                .catch(() => showMessage('Password reset failed.'));
+        }
+    </script>
+</body>
 
-
-        </script>
-</main></section>
-</body></html>
+</html>

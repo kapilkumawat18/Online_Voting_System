@@ -565,9 +565,14 @@ def login():
             return redirect(url_for('admin' if session.get('role') == 'admin' else 'home'))
         return render_template('login.html', next=request.args.get('next', ''))
 
-    # Public registration may only create voter accounts.
-    role = 'voter'
-    name = request.form.get('name')
+    # The login role is selected by the user, then verified against the
+    # role stored in the database. Never hard-code every login as voter.
+    role = (request.form.get('role') or 'voter').strip().lower()
+    if role not in ('voter', 'admin'):
+        flash("Invalid account role.", "login_error")
+        return redirect(url_for('login'))
+
+    name = request.form.get('name', '').strip()
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -578,23 +583,23 @@ def login():
     cur = None
     try:
         cur = mysql.connection.cursor()
-        query = "SELECT id, password, dark_mode FROM users WHERE name=%s AND email=%s AND role=%s"
-        cur.execute(query, (name, username, role))
+        query = "SELECT id, name, email, password, dark_mode FROM users WHERE name=%s AND LOWER(email)=LOWER(%s) AND role=%s LIMIT 1"
+        cur.execute(query, (name, username.strip(), role))
         user = cur.fetchone()
 
         if not user:
             flash("Invalid login credentials, please try again.", "login_error")
             return redirect(url_for('login'))
 
-        user_id, hashed_password, dark_mode = user
+        user_id, db_name, db_email, hashed_password, dark_mode = user
 
         if check_password_hash(hashed_password, password):
             # Store session data
             session.update({
                 'logged_in': True,
                 'user_id': user_id,
-                'name': name,
-                'username': username,
+                'name': db_name,
+                'username': db_email,
                 'role': role,
                 'dark_mode': dark_mode,
             })

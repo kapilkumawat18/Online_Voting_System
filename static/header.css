@@ -26,8 +26,8 @@ body {
     top: 0;
     z-index: 1000;
     height: var(--sv-header-height);
-    background: rgba(255,255,255,.88);
-    border-bottom: 1px solid rgba(228,231,236,.9);
+    background: rgba(255, 255, 255, .88);
+    border-bottom: 1px solid rgba(228, 231, 236, .9);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 }
@@ -57,7 +57,7 @@ body {
     place-items: center;
     border-radius: 13px;
     background: linear-gradient(135deg, var(--sv-primary), #203ba4);
-    box-shadow: 0 8px 20px rgba(49,87,213,.25);
+    box-shadow: 0 8px 20px rgba(49, 87, 213, .25);
     overflow: hidden;
 }
 
@@ -191,7 +191,9 @@ body {
     font-weight: 700;
 }
 
-.sv-chevron { color: var(--sv-muted); }
+.sv-chevron {
+    color: var(--sv-muted);
+}
 
 .sv-login-button {
     color: var(--sv-text);
@@ -212,13 +214,15 @@ body {
     color: white;
     font-weight: 750;
     font-size: 13px;
-    box-shadow: 0 8px 18px rgba(49,87,213,.18);
+    box-shadow: 0 8px 18px rgba(49, 87, 213, .18);
     border: 0;
     cursor: pointer;
     text-decoration: none;
 }
 
-.sv-mobile-toggle { display:none; }
+.sv-mobile-toggle {
+    display: none;
+}
 
 .sv-account-panel {
     position: fixed;
@@ -231,13 +235,15 @@ body {
     padding: 25px;
     border: 1px solid var(--sv-border);
     border-radius: 24px;
-    background: rgba(255,255,255,.97);
-    box-shadow: 0 30px 90px rgba(16,24,40,.25);
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 30px 90px rgba(16, 24, 40, .25);
     transform: translateX(calc(100% + 30px));
-    transition: transform .3s cubic-bezier(.2,.8,.2,1);
+    transition: transform .3s cubic-bezier(.2, .8, .2, 1);
 }
 
-.sv-account-panel.show { transform: translateX(0); }
+.sv-account-panel.show {
+    transform: translateX(0);
+}
 
 .sv-panel-top {
     display: flex;
@@ -286,13 +292,16 @@ body {
     background: #dfe6ff;
 }
 
-.sv-profile-card > div {
+.sv-profile-card>div {
     display: flex;
     min-width: 0;
     flex-direction: column;
 }
 
-.sv-profile-card strong { font-size: 15px; }
+.sv-profile-card strong {
+    font-size: 15px;
+}
+
 .sv-profile-card span:not(.sv-role-pill) {
     margin-top: 4px;
     overflow: hidden;
@@ -331,7 +340,10 @@ body {
     font-weight: 650;
 }
 
-.sv-panel-links a:hover { background: var(--sv-surface-2); color: var(--sv-primary); }
+.sv-panel-links a:hover {
+    background: var(--sv-surface-2);
+    color: var(--sv-primary);
+}
 
 .sv-panel-action,
 .sv-logout-button {
@@ -352,7 +364,10 @@ body {
     background: #fff8f7;
 }
 
-.sv-primary-action-link { width: 100%; box-sizing: border-box; }
+.sv-primary-action-link {
+    width: 100%;
+    box-sizing: border-box;
+}
 
 .sv-panel-description {
     color: var(--sv-muted);
@@ -384,7 +399,7 @@ body {
 
 .sv-profile-form input:focus {
     border-color: var(--sv-primary);
-    box-shadow: 0 0 0 3px rgba(49,87,213,.1);
+    box-shadow: 0 0 0 3px rgba(49, 87, 213, .1);
 }
 
 .sv-profile-form small {
@@ -392,11 +407,19 @@ body {
     font-size: 10px;
 }
 
-.sv-mobile-nav { display: none; }
+.sv-mobile-nav {
+    display: none;
+}
 
 @media (max-width: 900px) {
-    .sv-primary-nav { display: none; }
-    .sv-header-inner { width: min(100% - 28px, 1240px); }
+    .sv-primary-nav {
+        display: none;
+    }
+
+    .sv-header-inner {
+        width: min(100% - 28px, 1240px);
+    }
+
     .sv-mobile-toggle {
         width: 42px;
         height: 42px;
@@ -408,6 +431,7 @@ body {
         background: var(--sv-surface-2);
         cursor: pointer;
     }
+
     .sv-mobile-toggle span {
         display: block;
         width: 18px;
@@ -418,16 +442,43 @@ body {
 }
 
 @media (max-width: 600px) {
-    :root { --sv-header-height: 68px; }
-    .sv-header-inner { width: calc(100% - 20px); gap: 8px; }
+    :root {
+        --sv-header-height: 68px;
+    }
+
+    .sv-header-inner {
+        width: calc(100% - 20px);
+        gap: 8px;
+    }
+
     .sv-brand-copy small,
     .sv-profile-name,
-    .sv-chevron { display: none; }
-    .sv-brand-copy strong { font-size: 17px; }
-    .sv-brand-mark { width: 38px; height: 38px; border-radius: 11px; }
-    .sv-header-actions { margin-left: auto; }
-    .sv-login-button { display: none; }
-    .sv-cta-button { display: none; }
+    .sv-chevron {
+        display: none;
+    }
+
+    .sv-brand-copy strong {
+        font-size: 17px;
+    }
+
+    .sv-brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+    }
+
+    .sv-header-actions {
+        margin-left: auto;
+    }
+
+    .sv-login-button {
+        display: none;
+    }
+
+    .sv-cta-button {
+        display: none;
+    }
+
     .sv-mobile-nav {
         position: fixed;
         z-index: 1100;
@@ -439,10 +490,11 @@ body {
         padding: 7px;
         border: 1px solid var(--sv-border);
         border-radius: 18px;
-        background: rgba(255,255,255,.94);
-        box-shadow: 0 18px 50px rgba(16,24,40,.18);
+        background: rgba(255, 255, 255, .94);
+        box-shadow: 0 18px 50px rgba(16, 24, 40, .18);
         backdrop-filter: blur(18px);
     }
+
     .sv-mobile-nav a,
     .sv-mobile-nav button {
         display: flex;
@@ -457,6 +509,152 @@ body {
         text-decoration: none;
         cursor: pointer;
     }
-    .sv-mobile-nav span { font-size: 18px; line-height: 1; }
-    .sv-mobile-nav small { font-size: 9px; font-weight: 700; }
+
+    .sv-mobile-nav span {
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .sv-mobile-nav small {
+        font-size: 9px;
+        font-weight: 700;
+    }
+}
+
+/* V2 mobile navigation + settings */
+.sv-mobile-nav {
+    display: none !important
+}
+
+.sv-settings-panel {
+    margin: 16px 0;
+    padding: 15px;
+    border: 1px solid var(--sv-border);
+    border-radius: 16px;
+    background: var(--sv-surface-2)
+}
+
+.sv-settings-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px
+}
+
+.sv-settings-head button {
+    border: 0;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: inherit
+}
+
+.sv-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 0;
+    font-size: 12px;
+    font-weight: 700
+}
+
+.sv-setting-row input {
+    width: 18px;
+    height: 18px
+}
+
+.sv-settings-save,
+.sv-settings-password button {
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--sv-primary);
+    color: #fff;
+    font-weight: 750;
+    cursor: pointer
+}
+
+.sv-settings-password {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--sv-border)
+}
+
+.sv-settings-password input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid var(--sv-border);
+    border-radius: 9px;
+    background: var(--sv-surface)
+}
+
+.sv-settings-message {
+    font-size: 11px;
+    color: var(--sv-muted);
+    margin-top: 8px
+}
+
+@media(max-width:600px) {
+    .sv-header {
+        z-index: 1200
+    }
+
+    .sv-mobile-nav {
+        display: flex !important;
+        position: fixed;
+        z-index: 1150;
+        top: 74px;
+        left: 10px;
+        right: 10px;
+        bottom: auto;
+        flex-direction: column;
+        gap: 3px;
+        padding: 9px;
+        border: 1px solid var(--sv-border);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, .97);
+        box-shadow: 0 20px 55px rgba(16, 24, 40, .2);
+        transform: translateY(-18px);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: .22s ease
+    }
+
+    .sv-mobile-nav.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto
+    }
+
+    .sv-mobile-nav a,
+    .sv-mobile-nav button {
+        width: 100%;
+        min-height: 44px;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 0 13px;
+        border-radius: 10px
+    }
+
+    .sv-mobile-nav a:hover,
+    .sv-mobile-nav button:hover {
+        background: var(--sv-surface-2);
+        color: var(--sv-primary)
+    }
+
+    .sv-mobile-nav span {
+        width: 22px;
+        text-align: center
+    }
+
+    .sv-mobile-nav small {
+        font-size: 12px
+    }
 }

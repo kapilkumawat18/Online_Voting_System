@@ -1,178 +1,95 @@
-.container {
-    max-width: 800px;
-    margin: 40px auto;  
+* {
+    box-sizing: border-box
 }
 
-
-h4{
-    margin-top: 82px;
-    text-align: center;
-    color: #444;
-    margin-bottom: 20px;
-    font-size: 24px;
-}
-
-/* Notifications List */
-.notif-list {
-    list-style: none;
-    padding: 0;
+html,
+body {
     margin: 0;
+    overflow-x: hidden
+}
+
+body {
+    background: #f6f7fb;
+    color: #101828;
+    font-family: Inter, system-ui, sans-serif
+}
+
+.notifications-page {
+    width: min(900px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 48px 0 100px
+}
+
+.notifications-page h1 {
+    margin: 0 0 8px;
+    font-size: 38px;
+    letter-spacing: -1.5px
+}
+
+.notifications-page>p {
+    color: #667085
+}
+
+.notifications-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 25px
 }
 
 .notif-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border-left: 4px solid #007bff;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    gap: 15px;
+    padding: 17px;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 25px rgba(16, 24, 40, .05)
 }
 
-.notif-item:hover {
-    transform: scale(1.02);
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-/* Notification Content */
 .notif-content {
-    flex-grow: 1;
-    color: #333;
+    flex: 1;
+    min-width: 0
 }
 
 .notif-content p {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 500;
+    margin: 0 0 5px;
+    font-size: 13px
 }
 
 .notif-time {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
+    color: #98a2b3;
+    font-size: 10px
 }
 
-/* Close Button (Delete Notification) */
-.notif-item button {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: #888;
-    transition: color 0.2s ease-in-out;
+.notif-remove {
+    border: 0;
+    background: #fff1f0;
+    color: #d92d20;
+    border-radius: 9px;
+    padding: 8px 10px;
+    cursor: pointer
 }
 
-.notif-item button:hover {
-    color: #d9534f;
-}
-
-/* No Notifications Message */
 .no-notifications {
+    padding: 35px;
     text-align: center;
-    font-size: 16px;
-    color: #777;
-    padding: 20px 0;
-}
-footer {
-    background: #333;
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    
-    
-  }
-  
-  footer::before {
-    content: '';
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(135deg, #1a73e8, #4285f4);
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-/* Dark Mode Background & Text */
-body.dark-mode {
-    background-color: #121212;
-    color: #ffffff;
+    border: 1px dashed #d0d5dd;
+    border-radius: 16px;
+    color: #667085;
+    background: #fff
 }
 
-/* Dark Mode Header */
-.dark-mode header, .dark-mode footer {
-    background: #1e1e1e;
-    color: #ffffff;
-}
-
-/* Dark Mode Notification Items */
-.dark-mode .notif-item {
-    background-color: #2a2a2a;
-    border: 1px solid #333;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Dark Mode Notification Content */
-.dark-mode .notif-content p {
-    color: #ddd;
-}
-
-/* Dark Mode Notification Timestamp */
-.dark-mode .notif-time {
-    color: #bbbbbb;
-    font-size: 12px;
-}
-.dark-mode h4{
-    color: white;
-}
-/* Dark Mode Remove Button */
-.dark-mode .notif-remove {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.dark-mode .notif-remove:hover {
-    background-color: #cc0000;
-}
-
-/* Dark Mode No Notifications Message */
-.dark-mode .no-notifications {
-    color: #888;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        width: 90%;
-        padding: 15px;
+@media(max-width:600px) {
+    .notifications-page {
+        padding-top: 30px
     }
 
-    h2 {
-        font-size: 22px;
+    .notifications-page h1 {
+        font-size: 30px
     }
 
     .notif-item {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px;
-    }
-
-    .notif-item button {
-        align-self: flex-end;
-        margin-top: 8px;
+        align-items: flex-start
     }
 }
