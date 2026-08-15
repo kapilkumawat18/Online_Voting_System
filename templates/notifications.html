@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,30 +9,35 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
     <script defer src="{{ url_for('static', filename='header.js') }}"></script>
 </head>
-<body class="{{ 'dark-mode' if dark_mode else '' }}">
+
+<body class="{{ 'dark-mode' if session.get('dark_mode') else '' }}">
     {% include 'header.html' %}
-    <main class="notifications-page"><h1>Notifications</h1><p>Your latest SecureVote activity and updates.</p><div class="notifications-list">
+    <h4>Notifications</h4>
+    <div class="container">
+        <!-- Hidden input to store user ID -->
+        <input type="hidden" id="user_id" value="{{ session.get('user_id', '') }}">
         <!-- Notifications List -->
         <div id="notifications-container">
             {% if notifications %}
-                    {% for notif in notifications %}
-                        <li class="notif-item" data-id="{{ notif.id }}">
-                            <div class="notif-content">
-                                <p>{{ notif.message }}</p>
-                                <small class="notif-time">{{ notif.created_at }}</small>
-                            </div>
-                            <button class="notif-remove" data-id="{{ notif.id }}">✖</button>
-                        </li>
-                    {% endfor %}
+            {% for notif in notifications %}
+            <li class="notif-item" data-id="{{ notif.id }}">
+                <div class="notif-content">
+                    <p>{{ notif.message }}</p>
+                    <small class="notif-time">{{ notif.created_at }}</small>
+                </div>
+                <button class="notif-remove" data-id="{{ notif.id }}">✖</button>
+            </li>
+            {% endfor %}
             {% else %}
-                <p class="no-notifications">No new notifications</p>
+            <p class="no-notifications">No new notifications</p>
             {% endif %}
         </div>
-    </div></main>
+    </div>
     <footer>
         <div class="container">
             <p>&copy; 2024 Online Voting System. All rights reserved.</p>
         </div>
     </footer>
 </body>
+
 </html>

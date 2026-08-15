@@ -16,7 +16,7 @@
         <p class="sv-subtitle">See what needs your attention, discover active elections, and review your voting activity from one clean dashboard.</p>
       </div>
       <div class="sv-actions">
-        <a class="sv-btn primary" href="{{ url_for('Voting') }}">Vote now</a>
+        <a class="sv-btn primary" href="{{ url_for('vote') }}">Vote now</a>
         <a class="sv-btn" href="{{ url_for('my_votes') }}">My votes</a>
       </div>
     </section>
@@ -62,7 +62,7 @@
         <div class="sv-list">
           <a class="sv-btn" href="{{ url_for('notifications_page') }}">Notifications</a>
           <a class="sv-btn" href="{{ url_for('my_votes') }}">Voting history</a>
-          <a class="sv-btn" href="{{ url_for('Voting') }}">Browse elections</a>
+          <a class="sv-btn" href="{{ url_for('vote') }}">Browse elections</a>
         </div>
       </article>
     </section>

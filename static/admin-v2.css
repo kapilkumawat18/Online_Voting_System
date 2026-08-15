@@ -358,3 +358,33 @@
 .dark-mode .adm-quick a:hover {
     background: #151d2f
 }
+
+.adm-election-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--adm-line)
+}
+
+.adm-election-actions form {
+    margin: 0
+}
+
+.adm-election-actions .adm-btn {
+    font-size: 10px;
+    padding: 8px 10px
+}
+
+.adm-election-actions .adm-btn.danger {
+    color: var(--adm-red);
+    border-color: #fecdca;
+    background: #fff8f7
+}
+
+@media(max-width:600px) {
+    .adm-election-actions .adm-btn {
+        width: 100%
+    }
+}

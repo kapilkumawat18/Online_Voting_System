@@ -1,57 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Voting System</title>
+    <title>Elections — SecureVote Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='voting.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='header.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='admin-v2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='elections-v2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin-v2.css') }}">
 </head>
-<body>
-  {% include 'header.html' %}
-    <div class="container">
-      <div class="sv-tabs">
-          <button class="sv-tab active" onclick="filterPolls('all')">All</button>
-          <button class="sv-tab" onclick="filterPolls('Active')">Active</button>
-          <button class="sv-tab" onclick="filterPolls('Upcoming')">Upcoming</button>
-          <button class="sv-tab" onclick="filterPolls('Completed')">Completed</button>
-      </div>
-      <div class="sv-election-grid" id="poll-container">
-          <!-- Poll cards will be rendered dynamically -->
-          {% for poll in elections %}
-          <div class="sv-election-card" data-status="{{ poll['status'].lower() }}">
-              <h2>{{ poll['title'] }}</h2>
-              <p>{{ poll['description'] }}</p>
-              <span class="status {{ poll['status'].lower() }}">{{ poll['status'] }}</span>
-              <a href="{{ url_for('results', election_id=poll.id) }}" class="status-btn" class="status-btn {{ 'disabled-btn' if poll.status == 'Upcoming' else '' }}"
-              {% if poll.status == "Upcoming" %} onclick="return false;" {% endif %}>{{ "Not Started" if poll.status == "Upcoming" else "View Results" }}</a>
-              {% if poll.startDate and poll.startDate > current_date %}
-                  <p class="votes">Starts: {{ poll.startDate }}</p>
-              {% elif poll.endDate and poll.endDate <= current_date %}
-                  <p class="votes">Ended: {{ poll.endDate }}</p>
-              {% else %}
-                  <p class="votes">Ends: {{ poll.endDate }}</p>
-              {% endif %}
-              {% if poll.endDate > current_date %}
-              <a href="{{ url_for('update_election', election_id=poll.id) }}" class="edit-btn">Edit</a>
-              {% endif %}
-              {% if poll.endDate <= current_date %}
-                <form action="{{ url_for('delete_election', election_id=poll.id) }}" method="POST" 
-                      onsubmit="return confirm('Are you sure you want to delete this election?');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="delete-btn">Delete</button>
-                </form>
-            {% endif %}
-          </div>
-          {% endfor %}
-      </div>
-  </div>
-  <footer>
-      <div class="Rights">
-          <p>2024 Online Voting System. All rights reserved.</p>
-      </div>
-  </footer>
-  <script src="{{ url_for('static', filename='header.js') }}"></script>
+
+<body class="{{ 'dark-mode' if dark_mode else '' }}">
+    {% include 'header.html' %}
+
+    <main class="sv-election-page">
+        <section class="sv-page-heading">
+            <div>
+                <span class="eyebrow">ADMIN • ELECTION CENTER</span>
+                <h1>Manage every election.</h1>
+                <p>Review election status, update upcoming elections and manage completed ballots from one workspace.
+                </p>
+            </div>
+            <div class="sv-election-stats">
+                <div class="sv-election-stat"><b>{{ elections|length }}</b> total</div>
+                <div class="sv-election-stat"><b>{{ elections|selectattr('status', 'equalto', 'Active')|list|length
+                        }}</b> active</div>
+            </div>
+        </section>
+
+        <div class="sv-tabs" role="tablist">
+            <button class="sv-tab active" data-filter="all" onclick="filterPolls('all')">All elections</button>
+            <button class="sv-tab" data-filter="Active" onclick="filterPolls('Active')">Active</button>
+            <button class="sv-tab" data-filter="Upcoming" onclick="filterPolls('Upcoming')">Upcoming</button>
+            <button class="sv-tab" data-filter="Completed" onclick="filterPolls('Completed')">Completed</button>
+        </div>
+
+        <section class="sv-election-grid" id="poll-container">
+            {% for poll in elections %}
+            <article class="sv-election-card" data-status="{{ poll['status']|lower }}">
+                <div class="sv-election-top">
+                    <span class="sv-election-status {{ poll['status']|lower }}">{{ poll['status'] }}</span>
+                    <span class="sv-election-number">#{{ loop.index }}</span>
+                </div>
+                <h2>{{ poll['title'] }}</h2>
+                <p>{{ poll['description'] or 'No additional description has been provided for this election.' }}</p>
+                <div class="sv-election-footer">
+                    <div class="sv-election-date">
+                        {% if poll['status'] == 'Upcoming' %}Starts<strong>{{ poll['startDate'] }}</strong>
+                        {% elif poll['status'] == 'Completed' %}Ended<strong>{{ poll['endDate'] }}</strong>
+                        {% else %}Voting closes<strong>{{ poll['endDate'] }}</strong>{% endif %}
+                    </div>
+                    <a href="{{ url_for('results', election_id=poll['id']) }}" class="sv-election-action">View results
+                        <span>→</span></a>
+                </div>
+                <div class="adm-election-actions">
+                    {% if poll['status'] != 'Completed' %}
+                    <a class="adm-btn" href="{{ url_for('update_election', election_id=poll['id']) }}">Edit election</a>
+                    {% endif %}
+                    {% if poll['status'] == 'Completed' %}
+                    <form action="{{ url_for('delete_election', election_id=poll['id']) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this completed election?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="adm-btn danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </article>
+            {% else %}
+            <div class="sv-empty"><strong>No elections available</strong>
+                <p>Create your first election to start managing ballots.</p>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='header.js') }}"></script>
+    <script src="{{ url_for('static', filename='react.js') }}"></script>
 </body>
+
 </html>

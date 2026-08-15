@@ -289,7 +289,9 @@ def Voting():
 @app.route('/adminvote')
 @admin_required
 def adminvote():
-    return render_template('adminvote.html')
+    # Use the same election-loading logic as /voting so the admin view never
+    # renders an empty shell with missing election data.
+    return redirect(url_for('vote'))
 
 
 @app.route('/electionform')
@@ -307,7 +309,59 @@ def adminresults():
 @app.route('/admin')
 @admin_required
 def admin():
-    return render_template('admin.html')
+    """Render the admin command center with real database-backed statistics."""
+    cursor = None
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        today = date.today()
+
+        cursor.execute(
+            "SELECT id, title, description, start_date, end_date FROM elections ORDER BY start_date DESC, id DESC"
+        )
+        elections = cursor.fetchall()
+
+        active_elections = 0
+        for election in elections:
+            start_date = election['start_date']
+            end_date = election['end_date']
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            if start_date <= today < end_date:
+                active_elections += 1
+
+            # Keep the dashboard status consistent with the voter election page.
+            election['status'] = (
+                'Completed' if today >= end_date
+                else 'Upcoming' if today < start_date
+                else 'Active'
+            )
+
+        cursor.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'voter'")
+        total_voters = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) AS total FROM votes")
+        total_votes = cursor.fetchone()['total']
+
+        return render_template(
+            'admin.html',
+            elections=elections,
+            active_elections=active_elections,
+            total_voters=total_voters,
+            total_votes=total_votes,
+            dark_mode=session.get('dark_mode', False),
+        )
+    except Exception as e:
+        print("Admin dashboard error:", str(e))
+        flash("Couldn't load the admin dashboard right now.", "login_error")
+        return render_template(
+            'admin.html', elections=[], active_elections=0, total_voters=0,
+            total_votes=0, dark_mode=session.get('dark_mode', False)
+        )
+    finally:
+        if cursor:
+            cursor.close()
 
 
 # ✅ Cache headers — only for real static assets. Applying this to every response
@@ -558,66 +612,62 @@ def notifications_page():
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute", methods=["POST"])
 def login():
-    # GET → show the login/register page. This is the page "necessary buttons"
-    # (Vote, Home dashboard, Records, etc.) redirect to when a visitor isn't logged in.
     if request.method == 'GET':
         if session.get('logged_in'):
             return redirect(url_for('admin' if session.get('role') == 'admin' else 'home'))
         return render_template('login.html', next=request.args.get('next', ''))
 
-    # The login role is selected by the user, then verified against the
-    # role stored in the database. Never hard-code every login as voter.
-    role = (request.form.get('role') or 'voter').strip().lower()
-    if role not in ('voter', 'admin'):
-        flash("Invalid account role.", "login_error")
-        return redirect(url_for('login'))
+    selected_role = (request.form.get('role') or 'voter').strip().lower()
+    name = (request.form.get('name') or '').strip()
+    username = (request.form.get('username') or '').strip().lower()
+    password = request.form.get('password') or ''
 
-    name = request.form.get('name', '').strip()
-    username = request.form.get('username')
-    password = request.form.get('password')
-
-    if not role or not name or not username or not password:
-        flash("Please fill all fields.", "login_error")
+    if selected_role not in {'voter', 'admin'} or not name or not username or not password:
+        flash("Please enter valid login details.", "login_error")
         return redirect(url_for('login'))
 
     cur = None
     try:
-        cur = mysql.connection.cursor()
-        query = "SELECT id, name, email, password, dark_mode FROM users WHERE name=%s AND LOWER(email)=LOWER(%s) AND role=%s LIMIT 1"
-        cur.execute(query, (name, username.strip(), role))
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # The selected role is only a requested login mode. The authoritative
+        # role always comes from the database, never from the browser.
+        cur.execute(
+            "SELECT id, name, email, password, role, dark_mode, profile_pic "
+            "FROM users WHERE name=%s AND email=%s",
+            (name, username)
+        )
         user = cur.fetchone()
 
-        if not user:
+        if not user or not check_password_hash(user['password'], password):
             flash("Invalid login credentials, please try again.", "login_error")
             return redirect(url_for('login'))
 
-        user_id, db_name, db_email, hashed_password, dark_mode = user
-
-        if check_password_hash(hashed_password, password):
-            # Store session data
-            session.update({
-                'logged_in': True,
-                'user_id': user_id,
-                'name': db_name,
-                'username': db_email,
-                'role': role,
-                'dark_mode': dark_mode,
-            })
-
-            flash("Login successful!", "login_success")
-            add_notification(user_id, "You have successfully logged in.")
-
-            next_url = request.form.get('next') or request.args.get('next')
-            if is_safe_next_url(next_url):
-                return redirect(next_url)
-            return redirect(url_for('admin' if role == 'admin' else 'home'))
-        else:
-            flash("Incorrect password, please try again.", "login_error")
+        db_role = (user['role'] or 'voter').strip().lower()
+        if db_role not in {'voter', 'admin'} or db_role != selected_role:
+            flash(f"This account is registered as {db_role.title()}. Please select the correct role.", "login_error")
             return redirect(url_for('login'))
+
+        session.update({
+            'logged_in': True,
+            'user_id': user['id'],
+            'name': user['name'],
+            'username': user['email'],
+            'role': db_role,
+            'dark_mode': bool(user['dark_mode']),
+            'profile_pic': user.get('profile_pic') or 'uploads/profiles/PU.jpg',
+        })
+
+        flash("Login successful!", "login_success")
+        add_notification(user['id'], "You have successfully logged in.")
+
+        next_url = request.form.get('next') or request.args.get('next')
+        if is_safe_next_url(next_url):
+            return redirect(next_url)
+        return redirect(url_for('admin' if db_role == 'admin' else 'home'))
 
     except Exception as e:
         print("Login error:", str(e))
-        flash("Internal server error.", "login_error")
+        flash("Unable to log in right now. Please try again.", "login_error")
         return redirect(url_for('login'))
     finally:
         if cur:
@@ -626,7 +676,12 @@ def login():
 @app.route('/register', methods=['POST'])
 @limiter.limit("5 per minute")
 def register():
-    role = request.form.get('role')
+    # Public registration can NEVER create an admin account.
+    submitted_role = (request.form.get('role') or 'voter').strip().lower()
+    if submitted_role != 'voter':
+        flash("Admin registration is disabled. Admin accounts are provisioned separately.", "login_error")
+        return redirect(url_for('login'))
+    role = 'voter'
     name = request.form.get('name')
     email = request.form.get('email')
     voterId = request.form.get('voterId')
