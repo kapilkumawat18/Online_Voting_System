@@ -32,7 +32,7 @@
 
         <div class="sv-header-actions">
             {% if session.get('logged_in') %}
-                <a class="sv-notification-button" href="{{ url_for('notifications') }}" aria-label="Notifications">
+                <a class="sv-notification-button" href="{{ url_for('get_notifications') }}" aria-label="Notifications">
                     <span>⌁</span>
                     <span id="notif-count" class="sv-notification-count">0</span>
                 </a>
