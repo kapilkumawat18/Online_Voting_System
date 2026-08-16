@@ -50,7 +50,7 @@
             <input type="hidden" name="next" value="{{ next|default('') }}">
 
             <label for="loginRole">Login as</label>
-            <select id="loginRole" name="role" required>
+            <select id="loginRole" name="role" autocomplete="off" required>
               <option value="voter">Voter</option>
               <option value="admin">Admin</option>
             </select>
@@ -74,26 +74,26 @@
           <form action="{{ url_for('register') }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label for="registerRole">Register as</label>
-            <select id="registerRole" name="role" required>
+            <select id="registerRole" name="role" autocomplete="off" required>
               <option value="voter">Voter</option>
               <option value="admin">Admin</option>
             </select>
 
             <label for="registerName">Full name</label>
-            <input type="text" id="registerName" name="name" placeholder="Enter your full name" required>
+            <input type="text" id="registerName" name="name" autocomplete="name" placeholder="Enter your full name" required>
 
             <label for="registerEmail">Email</label>
-            <div class="input-action"><input type="email" id="registerEmail" name="email" placeholder="you@example.com" required><button type="button" class="secondary-action" id="sendOtpButton" onclick="sendOTP()">Send OTP</button></div>
+            <div class="input-action"><input type="email" id="registerEmail" name="email" autocomplete="email" placeholder="you@example.com" required><button type="button" class="secondary-action" id="sendOtpButton" onclick="sendOTP()">Send OTP</button></div>
 
             <div id="otpSection" class="auth-subpanel" hidden>
               <label for="otp">Verification OTP</label>
-              <div class="input-action"><input type="text" id="otp" name="otp" inputmode="numeric" maxlength="6" placeholder="6-digit OTP"><button type="button" class="secondary-action" onclick="verifyOTP()">Verify</button></div>
+              <div class="input-action"><input type="text" id="otp" name="otp" autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="6-digit OTP"><button type="button" class="secondary-action" onclick="verifyOTP()">Verify</button></div>
             </div>
 
             <div id="Message" class="auth-message" aria-live="polite"></div>
 
             <label for="voterId">Voter ID</label>
-            <input type="text" id="voterId" name="voterId" placeholder="Enter your voter ID" required>
+            <input type="text" id="voterId" name="voterId" autocomplete="off" placeholder="Enter your voter ID" required>
 
             <label for="regPassword">Password</label>
             <input type="password" id="regPassword" name="password" autocomplete="new-password" placeholder="At least 8 characters" required>
@@ -108,19 +108,19 @@
           <div id="resetMessage" class="auth-message" aria-live="polite"></div>
           <form onsubmit="return false;">
             <label for="resetEmail">Email</label>
-            <input type="email" id="resetEmail" placeholder="you@example.com" required>
+            <input type="email" id="resetEmail" name="email" autocomplete="email" placeholder="you@example.com" required>
             <button type="button" id="sendResetOtpButton" class="auth-primary" onclick="sendResetOTP()">Send verification OTP</button>
 
             <div id="resetOtpSection" class="auth-subpanel" hidden>
               <label for="resetOtp">Verification OTP</label>
-              <div class="input-action"><input type="text" id="resetOtp" inputmode="numeric" maxlength="6" placeholder="6-digit OTP"><button type="button" class="secondary-action" onclick="verifyResetOTP()">Verify</button></div>
+              <div class="input-action"><input type="text" id="resetOtp" name="otp" autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="6-digit OTP"><button type="button" class="secondary-action" onclick="verifyResetOTP()">Verify</button></div>
             </div>
 
             <div id="newPasswordSection" class="auth-subpanel" hidden>
               <label for="newPassword">New password</label>
-              <input type="password" id="newPassword" placeholder="At least 8 characters">
+              <input type="password" id="newPassword" name="new_password" autocomplete="new-password" placeholder="At least 8 characters">
               <label for="confirmPassword">Confirm password</label>
-              <input type="password" id="confirmPassword" placeholder="Repeat your password">
+              <input type="password" id="confirmPassword" name="confirm_password" autocomplete="new-password" placeholder="Repeat your password">
               <button type="button" class="auth-primary" onclick="resetPassword()">Reset password</button>
             </div>
           </form>
