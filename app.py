@@ -289,7 +289,9 @@ def Voting():
 @app.route('/adminvote')
 @admin_required
 def adminvote():
-    return render_template('adminvote.html')
+    # Use the same election-loading logic as /voting so the admin view never
+    # renders an empty shell with missing election data.
+    return redirect(url_for('vote'))
 
 
 @app.route('/electionform')
@@ -307,7 +309,59 @@ def adminresults():
 @app.route('/admin')
 @admin_required
 def admin():
-    return render_template('admin.html')
+    """Render the admin command center with real database-backed statistics."""
+    cursor = None
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        today = date.today()
+
+        cursor.execute(
+            "SELECT id, title, description, start_date, end_date FROM elections ORDER BY start_date DESC, id DESC"
+        )
+        elections = cursor.fetchall()
+
+        active_elections = 0
+        for election in elections:
+            start_date = election['start_date']
+            end_date = election['end_date']
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            if start_date <= today < end_date:
+                active_elections += 1
+
+            # Keep the dashboard status consistent with the voter election page.
+            election['status'] = (
+                'Completed' if today >= end_date
+                else 'Upcoming' if today < start_date
+                else 'Active'
+            )
+
+        cursor.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'voter'")
+        total_voters = cursor.fetchone()['total']
+
+        cursor.execute("SELECT COUNT(*) AS total FROM votes")
+        total_votes = cursor.fetchone()['total']
+
+        return render_template(
+            'admin.html',
+            elections=elections,
+            active_elections=active_elections,
+            total_voters=total_voters,
+            total_votes=total_votes,
+            dark_mode=session.get('dark_mode', False),
+        )
+    except Exception as e:
+        print("Admin dashboard error:", str(e))
+        flash("Couldn't load the admin dashboard right now.", "login_error")
+        return render_template(
+            'admin.html', elections=[], active_elections=0, total_voters=0,
+            total_votes=0, dark_mode=session.get('dark_mode', False)
+        )
+    finally:
+        if cursor:
+            cursor.close()
 
 
 # ✅ Cache headers — only for real static assets. Applying this to every response
@@ -558,61 +612,86 @@ def notifications_page():
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute", methods=["POST"])
 def login():
-    # GET → show the login/register page. This is the page "necessary buttons"
-    # (Vote, Home dashboard, Records, etc.) redirect to when a visitor isn't logged in.
     if request.method == 'GET':
         if session.get('logged_in'):
             return redirect(url_for('admin' if session.get('role') == 'admin' else 'home'))
         return render_template('login.html', next=request.args.get('next', ''))
 
-    # Public registration may only create voter accounts.
-    role = 'voter'
-    name = request.form.get('name')
-    username = request.form.get('username')
-    password = request.form.get('password')
+    selected_role = (request.form.get('role') or 'voter').strip().lower()
+    name = (request.form.get('name') or '').strip()
+    username = (request.form.get('username') or '').strip().lower()
+    password = request.form.get('password') or ''
 
-    if not role or not name or not username or not password:
-        flash("Please fill all fields.", "login_error")
+    if selected_role not in {'voter', 'admin'} or not name or not username or not password:
+        flash("Please enter valid login details.", "login_error")
         return redirect(url_for('login'))
 
     cur = None
     try:
-        cur = mysql.connection.cursor()
-        query = "SELECT id, password, dark_mode FROM users WHERE name=%s AND email=%s AND role=%s"
-        cur.execute(query, (name, username, role))
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # The selected role is only a requested login mode. The authoritative
+        # role always comes from the database, never from the browser.
+        cur.execute(
+            "SELECT id, name, email, password, role, dark_mode, profile_pic "
+            "FROM users WHERE name=%s AND email=%s",
+            (name, username)
+        )
         user = cur.fetchone()
 
-        if not user:
+        if not user or not check_password_hash(user['password'], password):
             flash("Invalid login credentials, please try again.", "login_error")
             return redirect(url_for('login'))
 
-        user_id, hashed_password, dark_mode = user
-
-        if check_password_hash(hashed_password, password):
-            # Store session data
-            session.update({
-                'logged_in': True,
-                'user_id': user_id,
-                'name': name,
-                'username': username,
-                'role': role,
-                'dark_mode': dark_mode,
-            })
-
-            flash("Login successful!", "login_success")
-            add_notification(user_id, "You have successfully logged in.")
-
-            next_url = request.form.get('next') or request.args.get('next')
-            if is_safe_next_url(next_url):
-                return redirect(next_url)
-            return redirect(url_for('admin' if role == 'admin' else 'home'))
-        else:
-            flash("Incorrect password, please try again.", "login_error")
+        db_role = (user['role'] or 'voter').strip().lower()
+        if db_role not in {'voter', 'admin'} or db_role != selected_role:
+            flash(f"This account is registered as {db_role.title()}. Please select the correct role.", "login_error")
             return redirect(url_for('login'))
+
+        # ---------------------------------------------------------
+        # Resolve profile picture safely
+        # ---------------------------------------------------------
+        DEFAULT_PROFILE_PIC = "uploads/profiles/PU.jpg"
+
+        db_profile_pic = (user.get("profile_pic") or "").strip()
+
+        if db_profile_pic:
+            profile_file = os.path.join(
+                app.static_folder,
+                db_profile_pic
+            )
+
+            if os.path.isfile(profile_file):
+                profile_pic = db_profile_pic
+            else:
+                profile_pic = DEFAULT_PROFILE_PIC
+        else:
+            profile_pic = DEFAULT_PROFILE_PIC
+
+
+        # ---------------------------------------------------------
+        # Create login session
+        # ---------------------------------------------------------
+        session.update({
+            "logged_in": True,
+            "user_id": user["id"],
+            "name": user["name"],
+            "username": user["email"],
+            "role": db_role,
+            "dark_mode": bool(user["dark_mode"]),
+            "profile_pic": profile_pic,
+        })
+
+        flash("Login successful!", "login_success")
+        add_notification(user['id'], "You have successfully logged in.")
+
+        next_url = request.form.get('next') or request.args.get('next')
+        if is_safe_next_url(next_url):
+            return redirect(next_url)
+        return redirect(url_for('admin' if db_role == 'admin' else 'home'))
 
     except Exception as e:
         print("Login error:", str(e))
-        flash("Internal server error.", "login_error")
+        flash("Unable to log in right now. Please try again.", "login_error")
         return redirect(url_for('login'))
     finally:
         if cur:
@@ -621,7 +700,12 @@ def login():
 @app.route('/register', methods=['POST'])
 @limiter.limit("5 per minute")
 def register():
-    role = request.form.get('role')
+    # Public registration can NEVER create an admin account.
+    submitted_role = (request.form.get('role') or 'voter').strip().lower()
+    if submitted_role != 'voter':
+        flash("Admin registration is disabled. Admin accounts are provisioned separately.", "login_error")
+        return redirect(url_for('login'))
+    role = 'voter'
     name = request.form.get('name')
     email = request.form.get('email')
     voterId = request.form.get('voterId')
@@ -1003,52 +1087,45 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 MAX_PROFILE_PIC_BYTES = 2 * 1024 * 1024  # 2MB
 ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "GIF", "WEBP"}
 
+DEFAULT_PROFILE_PIC = "uploads/profiles/PU.jpg"
+
 
 class ProfilePictureError(ValueError):
     """Raised for any invalid upload; message is safe to show the user."""
 
 
 def save_profile_picture(profile_pic, user_id):
-    """Validate and save a profile picture, returning its relative path.
+    """Validate and save a profile picture, returning its relative static path."""
 
-    The previous version called profile_pic.save() directly on whatever was
-    uploaded — it trusted the browser-supplied filename/content-type and
-    never looked at the actual bytes. That means anyone could upload an
-    arbitrary file (HTML/SVG-with-script/polyglot/oversized file) that would
-    then be served back out from /uploads/profiles/... on the same origin as
-    the login page. Along with a missing X-Content-Type-Options header (now
-    added, see add_header()), that's a textbook way to end up flagged by
-    Safe Browsing as serving "harmful content". This version:
-      - caps the upload size before touching it
-      - decodes it with Pillow and verifies it's really one of the allowed
-        image formats (a renamed .html/.svg/.exe will fail here)
-      - re-encodes it as a fresh JPEG rather than saving the uploaded bytes
-        verbatim, which also strips any non-image payload smuggled inside a
-        technically-valid image container (e.g. an EXIF/XMP-based polyglot)
-      - always writes to the fixed, server-generated `user_<id>.jpg` path —
-        no part of the filename is ever taken from user input, so path
-        traversal isn't reachable here regardless.
-    """
     if not profile_pic or not profile_pic.filename:
         return None
 
     profile_pic.seek(0, os.SEEK_END)
     size = profile_pic.tell()
     profile_pic.seek(0)
+
     if size > MAX_PROFILE_PIC_BYTES:
         raise ProfilePictureError("Image must be smaller than 2MB.")
+
     if size == 0:
         raise ProfilePictureError("Uploaded file is empty.")
 
     try:
         from PIL import Image
+
         img = Image.open(profile_pic)
-        img.verify()  # cheap structural check
+        img.verify()
+
         profile_pic.seek(0)
-        img = Image.open(profile_pic)  # verify() leaves the image unusable, reopen
+        img = Image.open(profile_pic)
+
         if img.format not in ALLOWED_IMAGE_FORMATS:
-            raise ProfilePictureError("Unsupported image format. Use JPEG, PNG, GIF, or WEBP.")
+            raise ProfilePictureError(
+                "Unsupported image format. Use JPEG, PNG, GIF, or WEBP."
+            )
+
         img = img.convert("RGB")
+
     except ProfilePictureError:
         raise
     except Exception:
@@ -1056,49 +1133,129 @@ def save_profile_picture(profile_pic, user_id):
 
     filename = f"user_{user_id}.jpg"
     profile_pic_path = os.path.join(UPLOAD_FOLDER, filename)
+
     img.save(profile_pic_path, format="JPEG", quality=85)
+
+    # Path relative to /static
     return f"uploads/profiles/{filename}"
 
 
 @app.route("/update_profile", methods=["POST"])
 @limiter.limit("10 per minute")
 def update_profile():
-    """Updates user profile for both admin and voter."""
+    """Update profile for both admin and voter."""
+
     if not session.get("logged_in"):
         return jsonify({"error": "Unauthorized"}), 403
 
     user_id = session["user_id"]
+
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip()
     profile_pic = request.files.get("profile-pic-input")
 
     if not name or not email:
-        return jsonify({"status": "error", "message": "Name and email are required."}), 400
+        return jsonify({
+            "status": "error",
+            "message": "Name and email are required."
+        }), 400
+
     if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return jsonify({"status": "error", "message": "Please enter a valid email address."}), 400
+        return jsonify({
+            "status": "error",
+            "message": "Please enter a valid email address."
+        }), 400
 
     cursor = mysql.connection.cursor()
+
     try:
-        cursor.execute("SELECT profile_pic FROM users WHERE id = %s", (user_id,))
-        current_pic = cursor.fetchone()
-        current_pic = current_pic[0] if current_pic else None
+        # Get current profile picture
+        cursor.execute(
+            "SELECT profile_pic FROM users WHERE id = %s",
+            (user_id,)
+        )
 
-        cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
+        row = cursor.fetchone()
+        current_pic = row[0] if row else None
+
+        # Check duplicate email
+        cursor.execute(
+            "SELECT id FROM users WHERE email = %s AND id != %s",
+            (email, user_id)
+        )
+
         if cursor.fetchone():
-            return jsonify({"status": "error", "message": "That email is already in use by another account."}), 400
+            return jsonify({
+                "status": "error",
+                "message": "That email is already in use by another account."
+            }), 400
 
+        # Save new picture if uploaded
         try:
-            profile_pic_path = save_profile_picture(profile_pic, user_id) or current_pic
+            new_profile_pic = save_profile_picture(profile_pic, user_id)
         except ProfilePictureError as e:
-            return jsonify({"status": "error", "message": str(e)}), 400
+            return jsonify({
+                "status": "error",
+                "message": str(e)
+            }), 400
+
+        # -------------------------------------------------
+        # Determine the final profile picture
+        # -------------------------------------------------
+
+        if new_profile_pic:
+            profile_pic_path = new_profile_pic
+
+        elif current_pic:
+            # Make sure the existing picture actually exists.
+            current_file_path = os.path.join(
+                app.static_folder,
+                current_pic
+            )
+
+            if os.path.isfile(current_file_path):
+                profile_pic_path = current_pic
+            else:
+                profile_pic_path = DEFAULT_PROFILE_PIC
+
+        else:
+            profile_pic_path = DEFAULT_PROFILE_PIC
+
+        # Final safety check
+        final_file_path = os.path.join(
+            app.static_folder,
+            profile_pic_path
+        )
+
+        if not os.path.isfile(final_file_path):
+            profile_pic_path = DEFAULT_PROFILE_PIC
+
+        # -------------------------------------------------
+        # Update database
+        # -------------------------------------------------
 
         cursor.execute(
-            "UPDATE users SET name = %s, email = %s, profile_pic = %s WHERE id = %s",
-            (name, email, profile_pic_path, user_id)
+            """
+            UPDATE users
+            SET name = %s,
+                email = %s,
+                profile_pic = %s
+            WHERE id = %s
+            """,
+            (
+                name,
+                email,
+                profile_pic_path,
+                user_id
+            )
         )
+
         mysql.connection.commit()
 
+        # -------------------------------------------------
         # Update session
+        # -------------------------------------------------
+
         session.update({
             "name": name,
             "username": email,
@@ -1106,13 +1263,22 @@ def update_profile():
             "timestamp": int(time.time())
         })
 
-        add_notification(user_id, "Your profile has been updated successfully.")
+        add_notification(
+            user_id,
+            "Your profile has been updated successfully."
+        )
 
-        if profile_pic_path:
-            static_relative = profile_pic_path[len("static/"):] if profile_pic_path.startswith("static/") else profile_pic_path
-            profile_pic_url = url_for("static", filename=static_relative) + f"?t={session['timestamp']}"
-        else:
-            profile_pic_url = url_for("static", filename="uploads/profiles/PU.jpg")
+        # -------------------------------------------------
+        # Return profile picture URL
+        # -------------------------------------------------
+
+        profile_pic_url = (
+            url_for(
+                "static",
+                filename=profile_pic_path
+            )
+            + f"?t={session['timestamp']}"
+        )
 
         return jsonify({
             "status": "success",
@@ -1123,9 +1289,15 @@ def update_profile():
     except Exception as e:
         mysql.connection.rollback()
         print("Error updating profile:", str(e))
-        return jsonify({"status": "error", "message": "Profile update failed!"}), 400
+
+        return jsonify({
+            "status": "error",
+            "message": "Profile update failed!"
+        }), 400
+
     finally:
         cursor.close()
+
 
 
 @app.route("/change_password", methods=["POST"])

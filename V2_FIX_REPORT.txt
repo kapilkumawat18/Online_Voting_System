@@ -1,0 +1,22 @@
+SECUREVOTE V2 — FIXED BUILD
+
+Fixed in this build:
+1. Login role bug: selected Voter/Admin role is now actually checked against the database.
+2. Login identity: email lookup is case-insensitive and session identity uses the database record.
+3. Login UI: rebuilt responsive auth screen; removed duplicate legacy markup/video that caused tiny/overflowing layout.
+4. Notifications: navigation now targets notifications_page instead of a missing endpoint; notifications render as a proper page.
+5. Notification counter: uses the authenticated session; no client-supplied user_id is required.
+6. Election tabs: Active / Upcoming / Completed / All now use the V2 card/tab classes and a single working filter function.
+7. Removed the old react.js filter implementation from the V2 election pages because it was overriding the new filter function.
+8. Settings: sidebar Settings now opens a real settings panel with dark-mode save and password-change actions.
+9. Mobile hamburger: mobile navigation now opens/closes as a proper responsive menu instead of being permanently displayed.
+10. Admin mobile navigation: admin users are sent to the admin dashboard/election/voter links rather than the voter home page.
+11. Profile preview: profile image preview helper restored.
+12. Notifications: remove buttons now call the ownership-protected delete endpoint.
+13. Template endpoint references were checked against app.py; no missing url_for endpoints remain.
+
+Important deployment note:
+- This ZIP fixes application/UI logic. Render/Aiven environment variables are still external configuration.
+- The Render service must have the correct Aiven MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB and MYSQL_SSL_CA values.
+- Keep FLASK_SECRET_KEY stable on both deployments if both domains share the same database/session expectations.
+- Do not commit API keys, database passwords, or .env files.
