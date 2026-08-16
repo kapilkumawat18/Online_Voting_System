@@ -421,3 +421,23 @@ body {
         padding: 11px 12px
     }
 }
+
+/* SecureVote V2 corrected login layout */
+.auth-card{position:relative;overflow:hidden;padding:0}
+.auth-video{position:absolute;inset:0;height:170px;overflow:hidden;z-index:0}
+.auth-video video{width:100%;height:100%;object-fit:cover;display:block;opacity:.48}
+.auth-video-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,20,.15),rgba(16,23,38,.98))}
+.auth-card-content{position:relative;z-index:1;padding:34px}
+.auth-card-heading{padding-top:115px}
+.auth-mini-badge{display:inline-flex;padding:7px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.055);color:#cbd4e2;font-size:11px;font-weight:800;letter-spacing:.08em}
+.auth-form-panel{margin-top:20px}.auth-form-panel[hidden]{display:none!important}
+.auth-form-panel form{display:grid;gap:10px}.auth-form-panel label{font-size:13px;color:#cbd4e2;font-weight:700;margin-top:3px}
+.auth-submit{width:100%;margin-top:4px}.auth-links{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;margin-top:2px}
+.auth-inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}.auth-inline button{white-space:nowrap;padding-inline:14px}
+.auth-subsection{display:grid;gap:10px;margin-top:6px;padding:12px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.025)}.auth-subsection[hidden]{display:none!important}
+.auth-message{min-height:18px;font-size:12px;line-height:1.4}.auth-message.success{color:#73e6a0}.auth-message.error{color:#ff8f9c}
+.auth-alerts{display:grid;gap:6px}.auth-alerts .alert{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);font-size:12px}
+.auth-switch{font-size:13px;color:var(--muted);margin:14px 0 0}.form-title{font-size:18px;font-weight:800;margin:0 0 4px}
+@media(max-width:900px){.auth-card{width:min(100%,520px)}.auth-card-heading{padding-top:100px}}
+@media(max-width:520px){.auth-card-content{padding:24px 18px}.auth-card-heading{padding-top:94px}.auth-video{height:150px}.auth-links{flex-direction:column}.auth-inline{grid-template-columns:1fr}.auth-inline button{width:100%}}
+

@@ -612,6 +612,7 @@ def notifications_page():
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute", methods=["POST"])
 def login():
+    """Authenticate a voter or an existing admin and perform only safe local redirects."""
     if request.method == 'GET':
         if session.get('logged_in'):
             return redirect(url_for('admin' if session.get('role') == 'admin' else 'home'))
@@ -621,78 +622,69 @@ def login():
     name = (request.form.get('name') or '').strip()
     username = (request.form.get('username') or '').strip().lower()
     password = request.form.get('password') or ''
+    next_url = request.form.get('next') or request.args.get('next') or ''
 
     if selected_role not in {'voter', 'admin'} or not name or not username or not password:
         flash("Please enter valid login details.", "login_error")
-        return redirect(url_for('login'))
+        return redirect(url_for('login', next=next_url))
 
     cur = None
     try:
         cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        # The selected role is only a requested login mode. The authoritative
-        # role always comes from the database, never from the browser.
+        # The database is authoritative for the account role. The role selected
+        # in the browser must match the stored role; it cannot elevate privileges.
         cur.execute(
             "SELECT id, name, email, password, role, dark_mode, profile_pic "
-            "FROM users WHERE name=%s AND email=%s",
-            (name, username)
+            "FROM users WHERE name=%s AND email=%s AND role=%s LIMIT 1",
+            (name, username, selected_role)
         )
         user = cur.fetchone()
 
         if not user or not check_password_hash(user['password'], password):
             flash("Invalid login credentials, please try again.", "login_error")
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=next_url))
 
-        db_role = (user['role'] or 'voter').strip().lower()
-        if db_role not in {'voter', 'admin'} or db_role != selected_role:
-            flash(f"This account is registered as {db_role.title()}. Please select the correct role.", "login_error")
-            return redirect(url_for('login'))
+        db_role = (user.get('role') or 'voter').strip().lower()
+        if db_role not in {'voter', 'admin'}:
+            flash("This account has an invalid role configuration.", "login_error")
+            return redirect(url_for('login', next=next_url))
 
-        # ---------------------------------------------------------
-        # Resolve profile picture safely
-        # ---------------------------------------------------------
-        DEFAULT_PROFILE_PIC = "uploads/profiles/PU.jpg"
-
-        db_profile_pic = (user.get("profile_pic") or "").strip()
-
+        # Resolve profile picture using the existing main-app behavior.
+        default_profile_pic = "uploads/profiles/PU.jpg"
+        db_profile_pic = (user.get('profile_pic') or '').strip()
         if db_profile_pic:
-            profile_file = os.path.join(
-                app.static_folder,
-                db_profile_pic
-            )
-
-            if os.path.isfile(profile_file):
-                profile_pic = db_profile_pic
-            else:
-                profile_pic = DEFAULT_PROFILE_PIC
+            profile_file = os.path.join(app.static_folder, db_profile_pic)
+            profile_pic = db_profile_pic if os.path.isfile(profile_file) else default_profile_pic
         else:
-            profile_pic = DEFAULT_PROFILE_PIC
+            profile_pic = default_profile_pic
 
-
-        # ---------------------------------------------------------
-        # Create login session
-        # ---------------------------------------------------------
+        # Clear any pre-login session state before creating the authenticated session.
+        session.clear()
         session.update({
-            "logged_in": True,
-            "user_id": user["id"],
-            "name": user["name"],
-            "username": user["email"],
-            "role": db_role,
-            "dark_mode": bool(user["dark_mode"]),
-            "profile_pic": profile_pic,
+            'logged_in': True,
+            'user_id': user['id'],
+            'name': user['name'],
+            'username': user['email'],
+            'role': db_role,
+            'dark_mode': bool(user.get('dark_mode', False)),
+            'profile_pic': profile_pic,
         })
 
         flash("Login successful!", "login_success")
         add_notification(user['id'], "You have successfully logged in.")
 
-        next_url = request.form.get('next') or request.args.get('next')
+        # Only allow same-site relative destinations. A voter can never be
+        # redirected into the admin-only namespace through the next parameter.
         if is_safe_next_url(next_url):
-            return redirect(next_url)
+            if db_role == 'admin' or not next_url.startswith('/admin'):
+                return redirect(next_url)
+
         return redirect(url_for('admin' if db_role == 'admin' else 'home'))
 
     except Exception as e:
         print("Login error:", str(e))
         flash("Unable to log in right now. Please try again.", "login_error")
-        return redirect(url_for('login'))
+        return redirect(url_for('login', next=next_url))
     finally:
         if cur:
             cur.close()
