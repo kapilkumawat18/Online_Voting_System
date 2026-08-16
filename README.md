@@ -15,7 +15,7 @@ A full-stack web application for running secure, role-based online elections —
 </div>
 
 ---
-Live Demo : [https://online-voting-system-s626.onrender.com/](https://online-voting-system-5dvv.onrender.com) <br>
+Live Demo : [https://online-voting-system.com/](https://online-voting-system-5dvv.onrender.com) <br>
 For Demo Use : <br>
 Role: Voter <br>
 Name : Voter <br>
