@@ -34,6 +34,10 @@ if not app.secret_key:
     app.secret_key = secrets.token_hex(32)
     print("WARNING: FLASK_SECRET_KEY is not set; sessions will reset on restart.")
 
+@app.route("/health", methods=["GET"])
+def health():
+    return "OK", 200
+    
 @app.before_request
 def log_request():
     print(f"REQUEST: {request.method} {request.path}", flush=True)
